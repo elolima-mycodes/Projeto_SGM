@@ -14,7 +14,7 @@
         <div class="d-flex gap-3 container-xxl">
             <div class="container-lg gap-3">
                 <button class="btn btn-outline-secondary mt-2"><a href="#">Voltar</a></button>
-                <section class="shadow p-4 mb-4 bg-body-tertiary rounded" style="height:500px">
+                <section class="shadow p-4 mb-4 bg-body-tertiary rounded" style="min-height:500px">
                     <h5 class="fw-bold mb-4">Detalhes da Solicitação</h5>
                     <ul class="list-group list-group-flush mb-4">
                     <li class="list-group-item bg-transparent d-flex justify-content-between align-items-center px-0">

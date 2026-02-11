@@ -36,7 +36,7 @@ if (!isset($_SESSION['user_perfil']) || $_SESSION['user_perfil'] !== 'gestor') {
                     <div class="card border-0 shadow-sm text-center p-3 border-bottom border-primary border-5">
                         <div class="card-body">
                             <h6 class="text-muted fw-bold">Novas solicitações</h6>
-                            <h2 class="display-4 fw-bold text-primary">15</h2>
+                            <h2 class="display-4 fw-bold text-primary">0</h2>
                         </div>
                     </div>
                 </div>
@@ -44,7 +44,7 @@ if (!isset($_SESSION['user_perfil']) || $_SESSION['user_perfil'] !== 'gestor') {
                     <div class="card border-0 shadow-sm text-center p-3 border-bottom border-warning border-5">
                         <div class="card-body">
                             <h6 class="text-muted fw-bold">Em Andamento</h6>
-                            <h2 class="display-4 fw-bold text-warning">8</h2>
+                            <h2 class="display-4 fw-bold text-warning">0</h2>
                         </div>
                     </div>
                 </div>
@@ -53,7 +53,7 @@ if (!isset($_SESSION['user_perfil']) || $_SESSION['user_perfil'] !== 'gestor') {
                     <div class="card border-0 shadow-sm text-center p-3 border-bottom border-danger border-5">
                         <div class="card-body">
                             <h6 class="text-muted fw-bold">Crítico</h6>
-                            <h2 class="display-4 fw-bold text-danger">3</h2>
+                            <h2 class="display-4 fw-bold text-danger">0</h2>
                         </div>
                     </div>
                 </div>
