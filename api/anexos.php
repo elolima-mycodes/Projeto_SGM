@@ -1,26 +1,28 @@
 <?php
 session_start();
-require_once'../config/database.php';
+require_once '../config/database.php';
 header('Content-Type: application/json');
 
-$id_chamado = $_GET['id_chamado'];
+// 1. Forçar o ID a ser um inteiro para segurança
+$id_chamado = isset($_GET['id_chamado']) ? (int)$_GET['id_chamado'] : 0;
 
-$sql = "SELECT
-  ca.caminho_arquivo,
-  ca.tipo_anexo
-  from chamados_anexos ca
-  where ca.id_chamado = $id_chamado";
+if ($id_chamado > 0) {
+    // 2. Query simplificada
+    $sql = "SELECT caminho_arquivo, tipo_anexo 
+            FROM chamados_anexos 
+            WHERE id_chamado = $id_chamado";
 
+    $res = $conn->query($sql);
 
-
-$res = $conn->query($sql);
-if ($res) {
-    $dados = [];
-    while ($linha = $res->fetch_assoc()) {
-        $dados[] = $linha;
+    if ($res) {
+        // fetch_all é mais rápido para transformar tudo em array de uma vez
+        $dados = $res->fetch_all(MYSQLI_ASSOC);
+        echo json_encode($dados);
+    } else {
+        // Em caso de erro no SQL, retornamos um array vazio para não travar o JS
+        echo json_encode([]);
     }
-    echo json_encode($dados);
 } else {
-    // Caso a query falhe (erro de coluna, etc)
-    echo json_encode(["success" => false, "message" => "Erro no SQL: " . $conn->error]);
+    // Se não for passado um ID válido, retorna array vazio
+    echo json_encode([]);
 }
