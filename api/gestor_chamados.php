@@ -1,38 +1,30 @@
 <?php
 session_start();
-require_once'../config/database.php';
+require_once '../config/database.php';
 header('Content-Type: application/json');
 
-if(!isset($_SESSION['user_id']) || $_SESSION['user_perfil'] !== 'gestor') {
-    echo json_encode(["success" => false, "message" => "Acesso negado"]);
+if (!isset($_SESSION['user_id']) || $_SESSION['user_perfil'] !== 'gestor') {
+    echo json_encode(["success" => false, "message" => "Acesso negado."]);
     exit;
 }
 
-$sql = "SELECT
-             c.id_chamado,
-             u_soli.nome as solicitante,
-             a.nome as local,
-             t.nome as serviço,
-             c.prioridade,
-             u_tec.nome as tecnico,
-             c.status
-             FROM chamados c
-             LEFT JOIN usuarios u_soli ON c.id_solicitante = u_soli.id_usuario
-             left join usuarios u_tec on c.id_tecnico = u_tec.id_usuario 
-             LEFT JOIN ambientes a on c.id_ambiente = a.id_ambiente
-             left join tipos_servico t on c.id_tipo_servico = t.id_tipo
-             ORDER BY c.data_abertura DESc";
+$status = isset($_GET['status']) ? $conn->real_escape_string($_GET['status']) : '';
+$where = $status ? "WHERE c.status = '$status'" : "";
 
+$sql = "SELECT c.id_chamado, c.descricao_problema, c.status, c.prioridade,
+               c.data_abertura, a.nome as ambiente_nome, b.nome as bloco_nome,
+               u.nome as solicitante_nome, t.nome as tecnico_nome
+        FROM chamados c
+        JOIN ambientes a ON c.id_ambiente = a.id_ambiente
+        JOIN blocos b ON a.id_bloco = b.id_bloco
+        JOIN usuarios u ON c.id_solicitante = u.id_usuario
+        LEFT JOIN usuarios t ON c.id_tecnico = t.id_usuario
+        $where
+        ORDER BY CASE WHEN c.prioridade = 'urgente' THEN 1
+                      WHEN c.prioridade = 'alta' THEN 2
+                      ELSE 3 END, c.data_abertura DESC";
 
+$result = $conn->query($sql);
+$chamados = $result->fetch_all(MYSQLI_ASSOC);
 
-$res = $conn->query($sql);
-if ($res) {
-    $dados = [];
-    while ($linha = $res->fetch_assoc()) {
-        $dados[] = $linha;
-    }
-    echo json_encode($dados);
-} else {
-    // Caso a query falhe (erro de coluna, etc)
-    echo json_encode(["success" => false, "message" => "Erro no SQL: " . $conn->error]);
-}
+echo json_encode($chamados);

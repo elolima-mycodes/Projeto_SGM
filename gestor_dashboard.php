@@ -35,7 +35,7 @@ if (!isset($_SESSION['user_perfil']) || $_SESSION['user_perfil'] !== 'gestor') {
                     <div class="card border-0 shadow-sm text-center p-3 border-bottom border-primary border-5">
                         <div class="card-body">
                             <h6 class="text-muted fw-bold">Novas solicitações</h6>
-                            <h2 class="display-4 fw-bold text-primary">0</h2>
+                            <h2 id="numNovos" class="display-4 fw-bold text-primary">0</h2>
                         </div>
                     </div>
                 </div>
@@ -43,7 +43,7 @@ if (!isset($_SESSION['user_perfil']) || $_SESSION['user_perfil'] !== 'gestor') {
                     <div class="card border-0 shadow-sm text-center p-3 border-bottom border-warning border-5">
                         <div class="card-body">
                             <h6 class="text-muted fw-bold">Em Andamento</h6>
-                            <h2 class="display-4 fw-bold text-warning">0</h2>
+                            <h2 id="numAndamento" class="display-4 fw-bold text-warning">0</h2>
                         </div>
                     </div>
                 </div>
@@ -52,15 +52,13 @@ if (!isset($_SESSION['user_perfil']) || $_SESSION['user_perfil'] !== 'gestor') {
                     <div class="card border-0 shadow-sm text-center p-3 border-bottom border-danger border-5">
                         <div class="card-body">
                             <h6 class="text-muted fw-bold">Crítico</h6>
-                            <h2 class="display-4 fw-bold text-danger">0</h2>
+                            <h2 id="numCritico" class="display-4 fw-bold text-danger">0</h2>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="d-flex gap-3 justify-content-center">
-                <button class="btn btn-primary px-4 py-2">
-                    <i class="bi bi-list-check me-2"></i> Gerenciar Chamados
-                </button>
+                <a href="gestor_chamados.php">Gerenciar Chamados</a>
                 <button class="btn btn-secondary px-4 py-2">
                     <i class="bi bi-geo-alt"></i> Configurar Ambientes
                 </button>
@@ -69,13 +67,30 @@ if (!isset($_SESSION['user_perfil']) || $_SESSION['user_perfil'] !== 'gestor') {
         </div>
     </main>
 
-    
-
-
-
-
-
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    async function carregarStats() {
+        try {
+            const response = await fetch('api/dashboard_gestor.php');
+            const data = await response.json();
+            
+            if(data.error) return;
+
+            // Atualiza os números na tela
+            document.getElementById('numNovos').innerText = data.abertos;
+            document.getElementById('numAndamento').innerText = data.em_execucao;
+            document.getElementById('numCritico').innerText = data.urgentes;
+            
+        } catch (error) {
+            console.error("Erro ao buscar estatísticas:", error);
+        }
+    }
+
+    // Carrega ao abrir a página
+    carregarStats();
+    
+    // Opcional: Atualiza a cada 30 segundos sozinho
+    setInterval(carregarStats, 30000);
+</script>
 </body>
 </html>

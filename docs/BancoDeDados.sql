@@ -155,9 +155,9 @@ CREATE TABLE IF NOT EXISTS chamados_comentarios (
 
 -- Inserir Usuários Padrão (Senha '123456' hash exemplo)
 INSERT INTO usuarios (nome, email, senha_hash, perfil) VALUES 
-('Admin Gestor', 'admin@sgm.com', '$2y$10$abcdefgh...', 'gestor'),
-('João Técnico', 'tecnico@sgm.com', '$2y$10$abcdefgh...', 'tecnico'),
-('Maria Solicitante', 'usuario@sgm.com', '$2y$10$abcdefgh...', 'solicitante');
+('Admin Gestor', 'admin@sgm.com', '$$2y$10$OWj1KJGo9RJzCHaPsY40fOifXqDfA7pYlj/1nAe5b7bpQaKhPjxCK', 'gestor'),
+('João Técnico', 'tecnico@sgm.com', '$$2y$10$OWj1KJGo9RJzCHaPsY40fOifXqDfA7pYlj/1nAe5b7bpQaKhPjxCK', 'tecnico'),
+('Maria Solicitante', 'usuario@sgm.com', '$$2y$10$OWj1KJGo9RJzCHaPsY40fOifXqDfA7pYlj/1nAe5b7bpQaKhPjxCK', 'solicitante');
 
 -- Inserir Tipos de Serviço Básicos
 INSERT INTO tipos_servico (nome) VALUES 
@@ -171,3 +171,55 @@ INSERT INTO ambientes (nome, id_bloco) VALUES ('Recepção', 1), ('Copa', 1), ('
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
+
+
+
+
+-- Inserindo 4 Técnicos
+INSERT INTO usuarios (nome, email, senha_hash, perfil) VALUES 
+('Carlos Eletricista', 'carlos.tecnico@sgm.com', '$2y$10$OWj1KJGo9RJzCHaPsY40fOifXqDfA7pYlj/1nAe5b7bpQaKhPjxCK', 'tecnico'),
+('Ana Hidráulica', 'ana.tecnica@sgm.com', '$2y$10$OWj1KJGo9RJzCHaPsY40fOifXqDfA7pYlj/1nAe5b7bpQaKhPjxCK', 'tecnico'),
+('Ricardo Ar-Condicionado', 'ricardo.tecnico@sgm.com', '$2y$10$OWj1KJGo9RJzCHaPsY40fOifXqDfA7pYlj/1nAe5b7bpQaKhPjxCK', 'tecnico'),
+('Roberto Civil', 'roberto.tecnico@sgm.com', '$2y$10$OWj1KJGo9RJzCHaPsY40fOifXqDfA7pYlj/1nAe5b7bpQaKhPjxCK', 'tecnico');
+
+-- Inserindo 3 Solicitantes
+INSERT INTO usuarios (nome, email, senha_hash, perfil) VALUES 
+('Fernanda Recepção', 'fernanda.usuario@sgm.com', '$2y$10$OWj1KJGo9RJzCHaPsY40fOifXqDfA7pYlj/1nAe5b7bpQaKhPjxCK', 'solicitante'),
+('Marcos Produção', 'marcos.usuario@sgm.com', '$2y$10$OWj1KJGo9RJzCHaPsY40fOifXqDfA7pYlj/1nAe5b7bpQaKhPjxCK', 'solicitante'),
+('Beatriz ADM', 'beatriz.usuario@sgm.com', '$2y$10$OWj1KJGo9RJzCHaPsY40fOifXqDfA7pYlj/1nAe5b7bpQaKhPjxCK', 'solicitante');
+
+
+-- Chamado 1: Problema Elétrico na Produção (Aberto)
+-- Solicitante: Marcos Produção (ID 9) | Ambiente: Linha 1 (ID 3)
+INSERT INTO `chamados` 
+(`id_chamado`, `descricao_problema`, `status`, `prioridade`, `id_solicitante`, `id_tecnico`, `id_ambiente`, `id_tipo_servico`) 
+VALUES 
+(NULL, 'Painel de controle da Linha 1 apresentando oscilação de energia.', 'aberto', 'urgente', 9, NULL, 3, 1);
+
+-- Chamado 2: Vazamento na Copa (Em Execução)
+-- Solicitante: Beatriz ADM (ID 10) | Técnico: Ana Hidráulica (ID 5) | Ambiente: Copa (ID 2)
+INSERT INTO `chamados` 
+(`id_chamado`, `descricao_problema`, `status`, `prioridade`, `id_solicitante`, `id_tecnico`, `id_ambiente`, `id_tipo_servico`) 
+VALUES 
+(NULL, 'Sifão da pia da copa está com vazamento grave, molhando o armário.', 'em_execucao', 'media', 10, 5, 2, 2);
+
+-- Chamado 3: Manutenção de Ar-Condicionado (Agendado)
+-- Solicitante: Fernanda Recepção (ID 8) | Técnico: Ricardo Ar-Condicionado (ID 6) | Ambiente: Recepção (ID 1)
+INSERT INTO `chamados` 
+(`id_chamado`, `descricao_problema`, `status`, `prioridade`, `id_solicitante`, `id_tecnico`, `id_ambiente`, `id_tipo_servico`) 
+VALUES 
+(NULL, 'Limpeza preventiva dos filtros do ar-condicionado central.', 'agendado', 'baixa', 8, 6, 1, 3);
+
+
+-- 1. Anexo para o Chamado 1 (Problema de abertura)
+INSERT INTO `chamados_anexos` (`id_anexo`, `caminho_arquivo`, `tipo_anexo`, `id_chamado`) 
+VALUES (NULL, 'imgs/limpeza_de_ar_condicionado.jpg', 'abertura', 12);
+
+-- 2. Anexo para o Chamado 2 (Evidência de abertura)
+INSERT INTO `chamados_anexos` (`id_anexo`, `caminho_arquivo`, `tipo_anexo`, `id_chamado`) 
+VALUES (NULL, 'imgs/vazamento_copa.png', 'abertura', 11);
+
+-- 3. Anexo para o Chamado 2 (Foto da conclusão/solução)
+-- Útil para testar a exibição de múltiplas fotos no mesmo chamado
+INSERT INTO `chamados_anexos` (`id_anexo`, `caminho_arquivo`, `tipo_anexo`, `id_chamado`) 
+VALUES (NULL, 'imgs/lampada_trocada.jpg', 'conclusao', 9);
