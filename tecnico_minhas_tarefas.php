@@ -16,7 +16,8 @@
             
             <div class="d-flex align-items-center">
                 <span class="text-white me-3 d-none d-md-inline">Olá, Técnico     |</span>
-                <a href="api/logout.php" class="btn btn-outline-light btn-sm">Sair</a>
+                <button type="button" class="btn btn-outline-light btn-sm" data-bs-toggle="modal" data-bs-target="#modalLogout">Sair
+                </button>
             </div>
         </div>
         </nav>
@@ -30,6 +31,25 @@
                 <h6>Nenhuma tarefa pendente!</h6>
             </div>
         </div>
+
+        <div class="modal fade" id="modalLogout" tabindex="-1" aria-labelledby="modalLogoutLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-dark text-white justify-content-center">
+                    <h5 class="modal-title" id="modalLogoutLabel">Encerrar Sessão</h5>
+                </div>
+                <div class="modal-body text-center py-4">
+                    <i class="bi bi-exclamation-triangle text-warning display-4 mb-3"></i>
+                    <p class="fs-5">Sua sessão será encerrada. Tem certeza disso?</p>
+                </div>
+                <div class="modal-footer justify-content-center border-0">
+                    <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Voltar</button>
+                    <a href="api/logout.php" class="btn btn-danger px-4">Sair</a>
+                </div>
+                </div>
+            </div>
+        </div>
     </main>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
