@@ -15,52 +15,58 @@ if (!isset($_SESSION['user_perfil']) || $_SESSION['user_perfil'] !== 'gestor') {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
     <style>
         :root {
-            --azul-marinho: #1B263B;
-            --azul-royal: #415A77;
-            --gelo: #F8F9FA;
+            --primary: #2563eb;     
+            --dark-bg: #0f172a;     
+            --light-bg: #f1f5f9;     
+            --text-main: #1e293b;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
 
         body { 
-            background-color: var(--gelo);
+            background-color: var(--light-bg);
+            font-family: 'Inter', sans-serif;
+            color: var(--text-main);
         }
 
-        /* Estilo da Navbar Horizontal */
         .navbar-custom {
-            background-color: var(--azul-marinho);
-            padding: 1rem 2rem;
+            background-color: var(--dark-bg);
+            padding: 0.8rem 2rem;
+            border-bottom: 3px solid var(--primary);
         }
 
-        .nav-link {
-            color: #bdc3c7 !important;
-            transition: 0.3s;
-            margin: 0 10px;
-        }
-
-        .nav-link:hover, .nav-link.active {
-            color: white !important;
-        }
-
-        .btn-primario {
-            background-color: var(--azul-marinho);
-            color: white;
-            border: none;
-        }
-
-        .btn-primario:hover {
-            background-color: var(--azul-royal);
-            color: white;
-        }
-
-        /* Ajuste dos Cards com borda grossa embaixo */
         .card-gestao {
-            border: 1px solid #dee2e6;
-            border-bottom: 10px solid !important;
-            border-radius: 15px;
-            transition: transform 0.2s;
+            border: none !important;
+            border-radius: 12px !important;
+            background: #ffffff;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
+
+        .card-gestao::before {
+            content: "";
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 5px;
+        }
+
+        .border-primary::before { background-color: #3b82f6; }
+        .border-warning::before { background-color: #f59e0b; }
+        .border-danger::before { background-color: #ef4444; }
 
         .card-gestao:hover {
             transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primario {
+            background-color: var(--primary);
+            color: white;
+            border-radius: 8px;
+            padding: 10px 25px;
+            border: none;
+            font-weight: 600;
         }
     </style>
 </head>
@@ -87,7 +93,7 @@ if (!isset($_SESSION['user_perfil']) || $_SESSION['user_perfil'] !== 'gestor') {
                 
                 <div class="d-flex align-items-center gap-3">
                     <span class="text-white fw-light d-none d-md-inline">Olá, Gestor</span>
-                    <button type="button" class="btn btn-outline-light btn-sm" data-bs-toggle="modal" data-bs-target="#modalLogout">
+                    <button type="button" class="btn btn-outline-light btn-sm ms-lg-3" data-bs-toggle="modal" data-bs-target="#modalLogout">
                         <i class="bi bi-box-arrow-right me-1"></i> Sair
                     </button>
                 </div>
@@ -135,13 +141,22 @@ if (!isset($_SESSION['user_perfil']) || $_SESSION['user_perfil'] !== 'gestor') {
                     </div>
 
                     <div class="row mt-4">
-                        <div class="col-12 d-flex gap-3 justify-content-center">
+                        <div class="d-flex col-12 gap-1 align-middle">
                             <a href="gestor_chamados.php" class="btn btn-primario px-5 py-3 shadow-sm fw-bold">
                                <i class="bi bi-list-check me-2"></i> Gerenciar Chamados
                             </a>
-                            <button class="btn btn-outline-secondary px-5 py-3 shadow-sm fw-bold">
-                                <i class="bi bi-geo-alt me-2"></i> Configurar Ambientes
-                            </button>
+                            <a href="gestor_lista_ambientes.php" class="btn btn-primario px-5 py-3 shadow-sm fw-bold">
+                               <i class="bi bi-geo-alt me-2"></i> Gerenciar Ambientes
+                            </a>
+                            <a href="gestor_lista_blocos.php" class="btn btn-primario px-5 py-3 shadow-sm fw-bold">
+                               <i class="bi bi-building"></i> Gerenciar Blocos
+                            </a>
+                            <a href="gestor_lista_tipos_de_servico.php" class="btn btn-primario px-5 py-3 shadow-sm fw-bold">
+                               <i class="bi bi-geo-alt me-2"></i> Gerenciar Tipos de Serviço
+                            </a>
+                            <a href="gestor_lista_usuarios.php" class="btn btn-primario px-5 py-3 shadow-sm fw-bold">
+                               <i class="bi bi-geo-alt me-2"></i> Gerenciar Usuários
+                            </a>
                         </div>
                     </div>
 
@@ -166,8 +181,6 @@ if (!isset($_SESSION['user_perfil']) || $_SESSION['user_perfil'] !== 'gestor') {
                 </div>
             </div>
         </div>
-    </div>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
     async function carregarStats() {

@@ -21,13 +21,11 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_perfil'] !== 'gestor') {
 
     body { background-color: var(--gelo); }
 
-    /* Navbar Custom */
     .navbar-custom {
         background-color: var(--azul-marinho);
         padding: 0.8rem 2rem;
     }
 
-    /* Título Centralizado */
     .titulo-secao {
         color: var(--azul-marinho);
         font-weight: 800;
@@ -48,7 +46,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_perfil'] !== 'gestor') {
         border-radius: 2px;
     }
 
-    /* Filtros Centralizados */
     .filtros-container {
         display: flex;
         justify-content: center;
@@ -64,7 +61,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_perfil'] !== 'gestor') {
         transition: 0.3s;
     }
 
-    /* Tabela Estilizada */
     .card-tabela {
         border: none;
         border-radius: 15px;
@@ -112,8 +108,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_perfil'] !== 'gestor') {
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <div class="navbar-nav ms-auto align-items-center">
-                    <a class="nav-link active fw-bold" href="gestor_chamados.php">Chamados</a>
-                    <a class="nav-link" href="gestor_locais.php">Locais</a>
+
                     <button type="button" class="btn btn-outline-light btn-sm ms-lg-3" data-bs-toggle="modal" data-bs-target="#modalLogout">
                         <i class="bi bi-box-arrow-right me-1"></i> Sair
                     </button>
@@ -122,6 +117,9 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_perfil'] !== 'gestor') {
         </div>
     </nav>
     <div class="container">
+            <a href="gestor_dashboard.php" class="btn btn-outline-secondary mb-4">
+                <i class="bi bi-arrow-left"></i> Voltar
+            </a>
         <h2 class="mb-4">Todos os Chamados</h2>
 
         <div class="mb-3 d-flex gap-2">

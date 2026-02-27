@@ -18,13 +18,11 @@
         background-color: var(--gelo); 
     }
 
-    /* Navbar Custom */
     .navbar-custom {
         background-color: var(--azul-marinho);
         padding: 0.8rem 2rem;
     }
 
-    /* Título Centralizado */
     .titulo-secao {
         color: var(--azul-marinho);
         font-weight: 800;
@@ -45,7 +43,6 @@
         border-radius: 2px;
     }
 
-    /* Tabela e Thumbnails */
     .mini-thumb {
         width: 50px !important;
         height: 50px !important;
@@ -82,7 +79,6 @@
         border: none;
     }
 
-    /* Botão Nova Solicitação */
     .btn-nova-solicitacao {
         background-color: var(--azul-marinho);
         color: white;
