@@ -155,7 +155,7 @@ if (!isset($_SESSION['user_perfil']) || $_SESSION['user_perfil'] !== 'gestor') {
                                <i class="bi bi-geo-alt me-2"></i> Gerenciar Tipos de Serviço
                             </a>
                             <a href="gestor_lista_usuarios.php" class="btn btn-primario px-5 py-3 shadow-sm fw-bold">
-                               <i class="bi bi-geo-alt me-2"></i> Gerenciar Usuários
+                               <i class="bi bi-person-fill"></i> Gerenciar Usuários
                             </a>
                         </div>
                     </div>
