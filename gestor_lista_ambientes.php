@@ -1,3 +1,10 @@
+<?php
+session_start();
+if (!isset($_SESSION['user_id']) || $_SESSION['user_perfil'] !== 'gestor') {
+    header("Location: login.php");
+    exit;
+}
+?>
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -107,23 +114,7 @@
                             <th>Bloco</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <th>#1</th>
-                            <th>Recepção</th>
-                            <th><i class="bi bi-building"></i>Bloco Administrativo</th>
-                            <th><a href="gestor_editar_ambiente.php" class="btn btn-warning mb-3 mt-2"><i class="bi bi-pencil me-2"></i>Editar</a></th>
-                            <th><button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modalExcluir">
-                            </i> <i class="bi bi-trash me-2"></i>Excluir</button></th>
-                        </tr>
-                        <tr>
-                            <th>#3</th>
-                            <th>Linha 1</th>
-                            <th><i class="bi bi-building"></i>Bloco de Produção</th>
-                            <th><a href="gestor_editar_ambiente.php"  class="btn btn-warning mb-3 mt-2"><i class="bi bi-pencil me-2"></i>Editar</a></th>
-                            <th><button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modalExcluir">
-                            </i> <i class="bi bi-trash me-2"></i>Excluir</button></th>
-                        </tr>
+                    <tbody id="tabelaAmbientes">
                     </tbody>
                 </table>
             </div>
@@ -137,10 +128,11 @@
                 <div class="modal-body text-center py-5">
                     <i class="bi bi-exclamation-circle text-danger display-3 mb-3"></i>
                     <p class="fs-5 text-secondary">Deseja excluir esse ambiente?</p>
+                    <input type="hidden" id="idParaExcluir">
                 </div>
                 <div class="modal-footer justify-content-center border-0 pb-4">
                     <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Cancelar</button>
-                    <button class="btn btn-danger px-4">Excluir</button>
+                    <button class="btn btn-danger px-4" id="excluir" onclick=confirmarExclusao()>Excluir</button>
                 </div>
             </div>
         </div>
@@ -163,5 +155,68 @@
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+
+        async function carregarAmbientes() {
+            const res = await fetch('api/ambientes.php');
+            const json = await res.json();
+
+            const data = json.data; 
+
+            const tabela = document.getElementById('tabelaAmbientes');
+            tabela.innerHTML = data.map(a => `
+                <tr>
+                    <td>${a.id_ambiente}</td>
+                    <td>${a.nome}</td>
+                    <td>${a.nome_bloco}</td>
+                    <td>
+                        <a href="gestor_editar_ambiente.php?id=${a.id_ambiente}" class="btn btn-sm btn-primary">
+                            <i class="bi bi-pencil me-2"></i> Editar</a>
+                    </td>
+                    <td><button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modalExcluir" onclick="setIDExclusao(${a.id_ambiente})">
+                            </i> <i class="bi bi-trash me-2"></i>Excluir</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+            
+
+        carregarAmbientes();
+
+        function setIDExclusao(id) {
+            document.getElementById('idParaExcluir').value = id;
+        }
+
+        async function confirmarExclusao() {
+            const id = document.getElementById('idParaExcluir').value;
+
+            try {
+                const res = await fetch('api/ambientes.php', {
+                    method: 'DELETE', 
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ id_ambiente: id }) 
+                });
+
+                const dados = await res.json();
+
+                if (dados.success) {
+                    const modalElement = document.getElementById('modalExcluir');
+                    const modalInstance = bootstrap.Modal.getInstance(modalElement);
+                    modalInstance.hide();
+
+                    carregarAmbientes(); 
+                } else {
+                    alert("Erro ao excluir: " + dados.message);
+                }
+            } catch (erro) {
+                console.error("Erro na comunicação com a API:", erro);
+                alert("Erro de conexão ao tentar excluir.");
+            }
+        }
+
+    </script>
+
 </body>
 </html>

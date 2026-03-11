@@ -12,7 +12,7 @@ $method = $_SERVER['REQUEST_METHOD'];
 
 switch ($method) {
     case 'GET':
-        $sql = "SELECT a.id_ambiente, a.nome, a.id_bloco, b.nome as nome_bloco FROM ambientes a left join blocos b on a.id_bloco = b.id_bloco order by a.nome asc";
+        $sql = "SELECT a.id_ambiente, a.nome, a.id_bloco, b.nome as nome_bloco FROM ambientes a left join blocos b on a.id_bloco = b.id_bloco order by a.id_ambiente asc";
 
         $result = $conn->query($sql);
         $ambientes = [];

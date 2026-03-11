@@ -25,7 +25,7 @@
                             
                             <div class="mb-3">
                                 <label class="form-label fw-bold">Bloco</label>
-                                <select id="selectBloco" class="form-select">
+                                <select id="selectBloco" class="form-select" required>
                                     <option value="">Selecione o bloco...</option>
                                 </select>
                             </div>
@@ -39,5 +39,45 @@
             </div>
         </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        async function iniciar() {
+            const resB = await fetch('api/localizacoes.php?acao=listar_blocos');
+            const blocos = await resB.json();
+            const selB = document.getElementById('selectBloco');
+            blocos.forEach(b => selB.innerHTML += `<option value="${b.id_bloco}">${b.nome}</option>`);
+        }
+
+        document.getElementById('formAdicionarAmbiente').addEventListener('submit', async (e) => {
+        e.preventDefault(); 
+
+        const novoAmbiente = {
+            nome: document.getElementById('nomeAmbiente').value,
+            id_bloco: document.getElementById('selectBloco').value
+        };
+
+        try {
+            const response = await fetch('api/ambientes.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json' 
+                },
+                body: JSON.stringify(novoAmbiente) 
+            });
+
+            const result = await response.json();
+
+            if (result.success === true || result.success === "true") {
+                window.location.href = 'gestor_lista_ambientes.php';
+            } else {
+                alert("Erro: " + result.message);
+            }
+        } catch (error) {
+            console.error("Erro na comunicação:", error);
+            alert("Não foi possível conectar à API.");
+        }
+    });
+        iniciar();
+    </script>
 </body>
 </html>
