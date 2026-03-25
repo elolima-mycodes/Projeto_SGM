@@ -57,14 +57,14 @@
                 try {
                     const res = await fetch(`api/ambientes.php?id=${idAmbiente}`);
                     const response = await res.json();
-                   
-                    const ambiente = res.data ? res.data[0] : res;
-                    console.log("O que o PHP mandou:", response);
+                    console.log('Ambiente buscado:', response);
+
+                    const ambiente = response.data && response.data.length ? response.data[0] : null;
 
                     if (ambiente) {
-                        document.getElementById('nomeAmbiente').value = ambiente.nome;
-                        document.getElementById('selectBloco').value = ambiente.id_bloco;
-                    }
+                            nomeAmbiente.value = ambiente.nome;
+                            selectBloco.value = ambiente.id_bloco;
+                        }
                 } catch (e) {
                     console.error(e);
                 }

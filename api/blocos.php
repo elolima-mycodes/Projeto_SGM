@@ -12,16 +12,31 @@ $method = $_SERVER['REQUEST_METHOD'];
 
 switch ($method) {
     case 'GET':
-        $sql = "SELECT b.id_bloco, b.nome FROM blocos b ORDER BY b.nome ASC";
+        $blocos = [];
+        if (isset($_GET['id'])) {
+            $id = (int) $_GET['id'];
+            $sql = "SELECT b.id_bloco, b.nome, 
+                GROUP_CONCAT(a.nome SEPARATOR ', ') as nomes_ambientes
+                FROM blocos b 
+                LEFT JOIN ambientes a ON a.id_bloco = b.id_bloco
+                WHERE b.id_bloco = $id
+                GROUP BY b.id_bloco";
+        } else {
+            $sql = "SELECT b.id_bloco, b.nome, 
+                GROUP_CONCAT(a.nome SEPARATOR ', ') as nomes_ambientes
+                FROM blocos b 
+                LEFT JOIN ambientes a ON a.id_bloco = b.id_bloco
+                GROUP BY b.id_bloco
+                ORDER BY b.nome ASC";
+        }
 
         $result = $conn->query($sql);
-        $blocos = [];
-
         if ($result) {
             while ($row = $result->fetch_assoc()) {
                 $blocos[] = $row;
             }
         }
+        
         echo json_encode(["success" => true, "data" => $blocos]);
         break;
 

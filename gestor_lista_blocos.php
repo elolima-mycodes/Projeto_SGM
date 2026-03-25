@@ -114,18 +114,9 @@
                         <tr>
                             <th>ID</th>
                             <th>Nome</th>
-                            <th>Descrição</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <th>#1</th>
-                            <th><i class="bi bi-building">Bloco Administrativo</th>
-                            <th><button class="bloco-ambientes" data-bs-toggle="modal" data-bs-target="#modalAmbientes"><i class="bi bi-geo-alt me-2"></i>Ambientes</button></th>
-                            <th><a href="gestor_editar_bloco.php" class="btn btn-warning mb-3 mt-2"><i class="bi bi-pencil me-2"></i>Editar</a></th>
-                            <th><button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modalExcluir">
-                            </i> <i class="bi bi-trash me-2"></i>Excluir</button></th>
-                        </tr>
+                    <tbody id="tabelaBlocos">
                     </tbody>
                 </table>
             </div>
@@ -139,29 +130,30 @@
                 <div class="modal-body text-center py-5">
                     <i class="bi bi-exclamation-circle text-danger display-3 mb-3"></i>
                     <p class="fs-5 text-secondary">Deseja excluir esse bloco?</p>
+                    <input type="hidden" id="idParaExcluir">
                 </div>
                 <div class="modal-footer justify-content-center border-0 pb-4">
                     <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Cancelar</button>
-                    <button class="btn btn-danger px-4">Excluir</button>
+                    <button class="btn btn-danger px-4" onclick="confirmarExclusao()">Excluir</button>
                 </div>
             </div>
         </div>
     </div>
 
         <div class="modal fade" id="modalAmbientes" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow">
-                <div class="modal-header text-white justify-content-center" style="background-color: var(--azul-marinho)">
-                    <h5 class="modal-title">Ambientes</h5>
-            </div>
-                <div class="modal-body text-center py-5">
-                    <p class="fs-5 fw-bold">Recepção</p>
-                    <p class="fs-5 fw-bold">Copa</p>
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow">
+                    <div class="modal-header text-white" style="background-color: var(--azul-marinho)">
+                        <h5 class="modal-title" id="tituloModalAmbientes">Ambientes</h5>
+                    </div>
+                    <div class="modal-body text-center py-4" id="listaAmbientesModal">
+                        </div>
+                    <div class="modal-footer border-0">
+                        <button type="button" class="btn btn-secondary w-100" data-bs-dismiss="modal">Fechar</button>
+                    </div>
                 </div>
-
             </div>
         </div>
-    </div>
     
     <div class="modal fade" id="modalLogout" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -181,5 +173,104 @@
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+
+        async function carregarBlocos() {
+            const res = await fetch('api/blocos.php');
+            const json = await res.json();
+
+            const data = json.data; 
+
+            const tabela = document.getElementById('tabelaBlocos');
+            tabela.innerHTML = data.map(b => `
+                <tr>
+                    <td>${b.id_bloco}</td>
+                    <td>${b.nome}</td>
+                    <td>
+                    <button class="btn bloco-ambientes" onclick="abrirModalAmbientes(${b.id_bloco}, '${b.nome}')" data-bs-toggle="modal" data-bs-target="#modalAmbientes">
+                        <i class="bi bi-building me-1"></i> Ver Ambientes
+                    </button>
+                    </td>
+                    <td>
+                        <a href="gestor_editar_bloco.php?id=${b.id_bloco}" class="btn btn-sm btn-primary">
+                            <i class="bi bi-pencil me-2"></i> Editar</a>
+                    </td>
+                    <td><button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modalExcluir" onclick="setIDExclusao(${b.id_bloco})">
+                            </i> <i class="bi bi-trash me-2"></i>Excluir</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+            
+
+        carregarBlocos();
+
+        async function abrirModalAmbientes(idBloco, nomeBloco) {
+            const listaContainer = document.getElementById('listaAmbientesModal');
+            const titulo = document.getElementById('tituloModalAmbientes');
+            
+            titulo.innerText = `Ambientes: ${nomeBloco}`;
+            listaContainer.innerHTML = '<div class="spinner-border text-primary"></div>';
+
+            try {
+                const res = await fetch(`api/blocos.php?id=${idBloco}`);
+                const json = await res.json();
+                
+                const bloco = json.data && json.data[0];
+
+                if (bloco && bloco.nomes_ambientes) {
+                    const ambientes = bloco.nomes_ambientes.split(', ');
+
+                    listaContainer.innerHTML = '<ul class="list-group list-group-flush text-start">' + 
+                        ambientes.map(nome => `
+                            <li class="list-group-item d-flex align-items-center">
+                                <i class="bi bi-door-closed me-2 text-primary"></i> ${nome}
+                            </li>
+                        `).join('') + '</ul>';
+                } else {
+                    listaContainer.innerHTML = '<div class="alert alert-light m-0">Nenhum ambiente cadastrado.</div>';
+                }
+            } catch (error) {
+                console.error("Erro:", error);
+                listaContainer.innerHTML = '<div class="text-danger">Erro ao carregar. Verifique o console.</div>';
+            }
+        }
+
+        function setIDExclusao(id) {
+            document.getElementById('idParaExcluir').value = id;
+        }
+
+        async function confirmarExclusao() {
+            const id = document.getElementById('idParaExcluir').value;
+
+            try {
+                const res = await fetch('api/blocos.php', {
+                    method: 'DELETE', 
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ id_bloco: id }) 
+                });
+
+                const dados = await res.json();
+
+                if (dados.success) {
+                    const modalElement = document.getElementById('modalExcluir');
+                    const modalInstance = bootstrap.Modal.getInstance(modalElement);
+                    modalInstance.hide();
+
+                    carregarBlocos(); 
+                } else {
+                    alert("Erro ao excluir: " + dados.message);
+                }
+            } catch (erro) {
+                console.error("Erro na comunicação com a API:", erro);
+                alert("Erro de conexão ao tentar excluir.");
+            }
+        }
+
+
+
+    </script>
 </body>
 </html>

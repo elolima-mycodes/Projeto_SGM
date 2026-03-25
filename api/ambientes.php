@@ -12,37 +12,45 @@ $method = $_SERVER['REQUEST_METHOD'];
 
 switch ($method) {
     case 'GET':
-        $sql = "SELECT a.id_ambiente, a.nome, a.id_bloco, b.nome as nome_bloco FROM ambientes a left join blocos b on a.id_bloco = b.id_bloco order by a.id_ambiente asc";
+        $ambientes = [];
+        if (isset($_GET['id'])) {
+            $id = (int) $_GET['id'];
+            $sql = "SELECT a.id_ambiente, a.nome, a.id_bloco, b.nome as nome_bloco FROM ambientes a
+                    LEFT JOIN blocos b ON a.id_bloco=b.id_bloco
+                    WHERE a.id_ambiente = $id";
+        } else {
+            $sql = "SELECT a.id_ambiente, a.nome, a.id_bloco, b.nome as nome_bloco FROM ambientes a 
+                    LEFT JOIN blocos b ON a.id_bloco = b.id_bloco 
+                    ORDER BY a.id_ambiente ASC";
+        }
 
         $result = $conn->query($sql);
-        $ambientes = [];
-
         if ($result) {
             while ($row = $result->fetch_assoc()) {
                 $ambientes[] = $row;
             }
         }
+        
         echo json_encode(["success" => true, "data" => $ambientes]);
         break;
 
     case 'POST':
         $data = json_decode(file_get_contents("php://input"));
-        
+
         if (!isset($data->nome) || !isset($data->id_bloco)) {
-            echo json_encode(["success" => "false", "message" => "Dados incompletos. Informe nome e id_bloco."]);
+            echo json_encode(["success" => false, "message" => "Dados incompletos."]);
             exit;
         }
 
         $nome = $conn->real_escape_string(trim($data->nome));
         $id_bloco = (int)$data->id_bloco;
 
-
         $sql = "INSERT INTO ambientes (nome, id_bloco) VALUES ('$nome', $id_bloco)";
 
         if ($conn->query($sql) === TRUE) {
-            echo json_encode(["success" => true, "message" => "Ambiente criado com sucesso!", "id_ambiente" => $conn->insert_id]);
+            echo json_encode(["success" => true, "message" => "Ambiente criado!", "id_ambiente" => $conn->insert_id]);
         } else {
-            echo json_encode(["success" => false, "message" => "Erro ao criar ambiente: " . $conn->error]);
+            echo json_encode(["success" => false, "message" => "Erro: " . $conn->error]);
         }
         break;
 
