@@ -6,7 +6,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_perfil'] !== 'gestor') {
 }
 
 $pageTitle = 'Gestor - Adicionar Bloco';
-$activePage = 'infraestrutura';
+$activePage = 'blocos';
 $pageHeading = 'Adicionar Bloco';
 $pageSubheading = 'Registre um novo bloco físico para o sistema.';
 $pageActionLabel = '';
@@ -14,22 +14,25 @@ $pageActionLink = '';
 require_once 'includes/gestor_layout.php';
 ?>
 
-<div class="content-panel col-lg-6 px-0">
-    <form id="formAdicionarBloco" class="card-soft p-4">
-        <h2 class="fw-bold text-center mb-4">Adicionar Bloco</h2>
-        <div class="mb-3">
-            <label class="form-label fw-bold">Nome do Bloco</label>
-            <input type="text" id="nome" class="form-control" placeholder="Ex: Pavilhão Central" required>
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="content-panel col-lg-6 px-0">
+            <form id="formAdicionarBloco" class="card shadow-sm border-0 rounded-4 p-4 bg-white">
+                <div class="mb-3">
+                    <label class="form-label fw-bold text-secondary">Nome do Bloco</label>
+                    <input type="text" id="nome" class="form-control" placeholder="Ex: Pavilhão Central, Bloco A..." required>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label fw-bold text-secondary">Descrição (Opcional)</label>
+                    <textarea id="descricao" class="form-control" rows="4" placeholder="Detalhes sobre a localização ou uso..."></textarea>
+                </div>
+                <div class="d-flex gap-2 justify-content-center">
+                    <a href="gestor_lista_blocos.php" class="btn btn-light py-2 px-4 fw-bold">Cancelar</a>
+                    <button type="submit" class="btn btn-primary py-2 px-4 fw-bold">Adicionar Bloco</button>
+                </div>
+            </form>
         </div>
-        <div class="mb-4">
-            <label class="form-label fw-bold">Descrição (Opcional)</label>
-            <textarea id="descricao" class="form-control" rows="4" placeholder="Detalhes sobre a localização ou uso..."></textarea>
-        </div>
-        <div class="d-flex gap-2 justify-content-center">
-            <a href="gestor_lista_blocos.php" class="btn btn-outline-secondary py-2 px-4">Cancelar</a>
-            <button type="submit" class="btn btn-primary py-2 px-4">Adicionar</button>
-        </div>
-    </form>
+    </div>
 </div>
 
 <script>

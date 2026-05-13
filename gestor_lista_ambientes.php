@@ -4,77 +4,54 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_perfil'] !== 'gestor') {
     header("Location: login.php");
     exit;
 }
-?>
-<?php
-session_start();
-if (!isset($_SESSION['user_id']) || $_SESSION['user_perfil'] !== 'gestor') {
-    header("Location: login.php");
-    exit;
-}
 
 $pageTitle = 'SGM - Gestão de Ambientes';
-$activePage = 'infraestrutura';
+$activePage = 'ambientes';
 $pageHeading = 'Todos os Ambientes';
-$pageSubheading = 'Gerencie ambientes por bloco e edite seus dados.';
-$pageActionLabel = 'Adicionar Ambiente';
+$pageSubheading = 'Gerencie ambientes e edite seus dados.';
+$pageActionLabel = 'Novo Ambiente';
 $pageActionLink = 'gestor_adicionar_ambiente.php';
 require_once 'includes/gestor_layout.php';
 ?>
-
+<!DOCTYPE html>
 <div class="content-panel">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div></div>
-        <a href="gestor_dashboard.php" class="btn btn-outline-secondary">
-            <i class="bi bi-arrow-left me-2"></i> Voltar
-        </a>
-    </div>
     <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
-            <thead class="table-light">
+            <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Nome</th>
-                    <th>Bloco</th>
-                    <th>Ações</th>
+                    <th class="ps-4">ID</th>
+                    <th>Nome do Ambiente</th>
+                    <th>Bloco Associado</th>
+                    <th class="text-end pe-4">Ações</th>
                 </tr>
             </thead>
-            <tbody id="tabelaAmbientes"></tbody>
+            <tbody id="tabelaAmbientes">
+                <tr>
+                    <td colspan="4" class="text-center py-4">
+                        <div class="spinner-border text-primary spinner-border-sm me-2"></div>
+                        Carregando ambientes...
+                    </td>
+                </tr>
+            </tbody>
         </table>
     </div>
 </div>
 
+<!-- Modal de Exclusão -->
 <div class="modal fade" id="modalExcluir" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow">
-            <div class="modal-header text-white justify-content-center bg-primary">
-                <h5 class="modal-title">Excluir Ambiente</h5>
-            </div>
-            <div class="modal-body text-center py-5">
-                <i class="bi bi-exclamation-circle text-danger display-3 mb-3"></i>
-                <p class="fs-5 text-secondary">Deseja excluir esse ambiente?</p>
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-body text-center p-5">
+                <div class="mb-4 text-danger">
+                    <i class="bi bi-exclamation-triangle" style="font-size: 4rem;"></i>
+                </div>
+                <h4 class="fw-bold mb-3">Excluir Ambiente</h4>
+                <p class="text-muted mb-4">Tem certeza que deseja excluir este ambiente? Esta ação não poderá ser desfeita.</p>
                 <input type="hidden" id="idParaExcluir">
-            </div>
-            <div class="modal-footer justify-content-center border-0 pb-4">
-                <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Cancelar</button>
-                <button class="btn btn-danger px-4" onclick="confirmarExclusao()">Excluir</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="modalLogout" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow">
-            <div class="modal-header text-white justify-content-center bg-primary">
-                <h5 class="modal-title">Encerrar Sessão</h5>
-            </div>
-            <div class="modal-body text-center py-5">
-                <i class="bi bi-exclamation-circle text-danger display-3 mb-3"></i>
-                <p class="fs-5 text-secondary">Sua sessão será encerrada!<br>Deseja continuar?</p>
-            </div>
-            <div class="modal-footer justify-content-center border-0 pb-4">
-                <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Cancelar</button>
-                <a href="api/logout.php" class="btn btn-danger px-4">Sair</a>
+                <div class="d-flex gap-3 justify-content-center">
+                    <button type="button" class="btn btn-light px-4 rounded-pill fw-bold" data-bs-dismiss="modal">Cancelar</button>
+                    <button class="btn btn-danger px-4 rounded-pill fw-bold" onclick="confirmarExclusao()">Sim, Excluir</button>
+                </div>
             </div>
         </div>
     </div>
@@ -82,31 +59,43 @@ require_once 'includes/gestor_layout.php';
 
 <script>
     async function carregarAmbientes() {
-        const res = await fetch('api/ambientes.php');
-        const json = await res.json();
-        const data = json.data || [];
-        const tabela = document.getElementById('tabelaAmbientes');
-        tabela.innerHTML = data.map(a => `
-            <tr>
-                <td>${a.id_ambiente}</td>
-                <td>${a.nome}</td>
-                <td>${a.nome_bloco}</td>
-                <td class="text-nowrap">
-                    <a href="gestor_editar_ambiente.php?id=${a.id_ambiente}" class="btn btn-sm btn-primary me-2">
-                        <i class="bi bi-pencil me-1"></i> Editar
-                    </a>
-                    <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#modalExcluir" onclick="setIDExclusao(${a.id_ambiente})">
-                        <i class="bi bi-trash me-1"></i>Excluir
-                    </button>
-                </td>
-            </tr>
-        `).join('');
-    }
+        try {
+            const res = await fetch('api/ambientes.php');
+            const json = await res.json();
+            const data = json.data || [];
+            const tabela = document.getElementById('tabelaAmbientes');
+            
+            if (data.length === 0) {
+                tabela.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-muted">Nenhum ambiente encontrado.</td></tr>';
+                return;
+            }
 
-    carregarAmbientes();
+            tabela.innerHTML = data.map(a => `
+                <tr>
+                    <td class="ps-4 fw-bold">#${a.id_ambiente}</td>
+                    <td>${a.nome}</td>
+                    <td><span class="badge bg-light text-dark border"><i class="bi bi-building me-1"></i>${a.nome_bloco}</span></td>
+                    <td class="text-end pe-4">
+                        <div class="btn-group">
+                            <a href="gestor_editar_ambiente.php?id=${a.id_ambiente}" class="btn btn-sm btn-outline-primary rounded-pill me-2 px-3">
+                                <i class="bi bi-pencil me-1"></i> Editar
+                            </a>
+                            <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="setIDExclusao(${a.id_ambiente})">
+                                <i class="bi bi-trash me-1"></i> Excluir
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        } catch (error) {
+            console.error('Erro ao carregar:', error);
+            document.getElementById('tabelaAmbientes').innerHTML = '<tr><td colspan="4" class="text-center py-4 text-danger">Erro ao carregar ambientes.</td></tr>';
+        }
+    }
 
     function setIDExclusao(id) {
         document.getElementById('idParaExcluir').value = id;
+        new bootstrap.Modal(document.getElementById('modalExcluir')).show();
     }
 
     async function confirmarExclusao() {
@@ -119,18 +108,22 @@ require_once 'includes/gestor_layout.php';
             });
             const dados = await res.json();
             if (dados.success) {
-                const modalElement = document.getElementById('modalExcluir');
-                const modalInstance = bootstrap.Modal.getInstance(modalElement);
-                modalInstance.hide();
+                const modal = bootstrap.Modal.getInstance(document.getElementById('modalExcluir'));
+                modal.hide();
                 carregarAmbientes();
             } else {
                 alert('Erro ao excluir: ' + dados.message);
             }
         } catch (erro) {
-            console.error('Erro na comunicação com a API:', erro);
+            console.error('Erro:', erro);
             alert('Erro de conexão ao tentar excluir.');
         }
     }
+
+    carregarAmbientes();
 </script>
+
+</body>
+</html>
 
 <?php require_once 'includes/gestor_footer.php'; ?>

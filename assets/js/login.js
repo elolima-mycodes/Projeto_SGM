@@ -1,31 +1,47 @@
 document.getElementById('formLogin').addEventListener('submit', async (e) => {
     e.preventDefault();
+    console.log("Formulário enviado");
     
     const email = document.getElementById('email').value;
     const senha = document.getElementById('senha').value;
     const msg = document.getElementById('mensagem');
+    const btn = document.getElementById('btnEntrar');
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Acessando...';
+    msg.innerText = "";
 
     try {
+        console.log("Enviando requisição para api/login.php...");
         const response = await fetch('api/login.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email: email, senha: senha })
         });
 
-        // Debug: Veja o que o PHP está retornando no console do navegador (F12)
         const textoRetorno = await response.text();
-        console.log("Resposta do Servidor:", textoRetorno);
+        console.log("Resposta bruta do servidor:", textoRetorno);
         
-        const result = JSON.parse(textoRetorno);
-
-        if (result.success) {
-            // Se o login funcionar, manda para o dashboard que criamos
-            window.location.href = 'dashboard.php';
-        } else {
-            msg.innerText = result.message;
+        try {
+            const result = JSON.parse(textoRetorno);
+            if (result.success) {
+                console.log("Login bem-sucedido, redirecionando...");
+                window.location.href = 'dashboard.php';
+            } else {
+                msg.innerText = result.message;
+                btn.disabled = false;
+                btn.innerText = 'Entrar no Sistema';
+            }
+        } catch (e) {
+            console.error("Erro ao processar JSON:", e);
+            msg.innerText = "Erro interno no servidor (JSON inválido).";
+            btn.disabled = false;
+            btn.innerText = 'Entrar no Sistema';
         }
     } catch (error) {
-        console.error("Erro na requisição:", error);
+        console.error("Erro na requisição fetch:", error);
         msg.innerText = "Erro ao conectar com o servidor.";
+        btn.disabled = false;
+        btn.innerText = 'Entrar no Sistema';
     }
 });

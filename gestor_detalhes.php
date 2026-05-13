@@ -1,218 +1,308 @@
 <?php
 session_start();
-// Verifica se há um ID na URL, se não, volta para a lista
-$id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+if (!isset($_SESSION['user_id']) || $_SESSION['user_perfil'] !== 'gestor') {
+    header("Location: login.php");
+    exit;
+}
 
+$id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 if ($id <= 0) {
     header("Location: gestor_chamados.php");
     exit;
 }
+
+$pageTitle = 'SGM - Detalhes do Chamado';
+$activePage = 'chamados';
+$pageHeading = 'Gerenciar Chamado #' . $id;
+$pageSubheading = 'Visualize, edite ou remova as informações do chamado.';
+
+require_once 'includes/gestor_layout.php';
 ?>
 
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SGM - Detalhes do Chamado</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
-    <style>
-        .thumb-img {
-            width: 100%;
-            height: 100px;
-            object-fit: cover;
-            cursor: pointer;
-            border-radius: 8px;
-            transition: transform 0.2s;
-        }
-        .thumb-img:hover { transform: scale(1.05); }
-        .card-shadow { box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15); border-radius: 10px; border: none; }
-    </style>
-</head>
-<body class="bg-light">
-    <main class="py-4">
-        <div class="container-xxl">
-            <a href="gestor_chamados.php" class="btn btn-outline-secondary mb-4">
-                <i class="bi bi-arrow-left"></i> Voltar
-            </a>
+<style>
+    .detail-card {
+        border: none;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        background: #fff;
+        height: 100%;
+    }
+    .info-group {
+        padding: 1.2rem;
+        border-radius: 12px;
+        background: #f8fafc;
+        margin-bottom: 1rem;
+        border: 1px solid #e2e8f0;
+    }
+    .info-label {
+        font-size: 0.75rem;
+        color: #94a3b8;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    .info-value {
+        font-size: 1rem;
+        color: #1e293b;
+        font-weight: 600;
+    }
+    .form-control-custom {
+        background-color: #f1f5f9;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 0.75rem;
+        font-weight: 500;
+    }
+    .form-control-custom:focus {
+        background-color: #fff;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+    .thumb-img {
+        width: 100px; height: 100px;
+        object-fit: cover;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+    .thumb-img:hover { transform: scale(1.05); }
+</style>
 
-            <div class="row g-4">
-                <div class="col-lg-8">
-                    <div class="card card-shadow mb-4">
-                        <div class="card-header bg-white py-3">
-                            <h5 class="mb-0 fw-bold text-primary">Dados da Solicitação #<?= $id ?></h5>
-                        </div>
-                        <div id="detalhesChamado" class="card-body">
-                            <div class="text-center py-5">
-                                <div class="spinner-border text-primary" role="status"></div>
-                                <p class="mt-2">Carregando informações...</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div id="areaFechamento"></div>
+<div class="mb-4">
+    <a href="gestor_chamados.php" class="btn btn-light rounded-pill px-4 fw-bold">
+        <i class="bi bi-arrow-left me-2"></i>Voltar
+    </a>
+</div>
+
+<div class="row g-4">
+    <!-- Bloco 1: Detalhes do Chamado -->
+    <div class="col-lg-6">
+        <div class="card detail-card p-4">
+            <h5 class="fw-bold mb-4 d-flex align-items-center">
+                <span class="rounded-circle bg-primary bg-opacity-10 p-2 me-2">
+                    <i class="bi bi-info-circle text-primary"></i>
+                </span>
+                Informações do Chamado
+            </h5>
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="info-label">Solicitante</label>
+                    <div id="displaySolicitante" class="info-value">Carregando...</div>
                 </div>
-
-                <div class="col-lg-4">
-                    <section class="card card-shadow p-4 bg-white">
-                        <h6 class="fw-bold mb-3">Atribuir Técnico</h6>
-                        <form id="formAtribuir">
-                            <input type="hidden" id="id_chamado" value="<?= $id ?>">
-                            <div class="mb-3">
-                                <label class="form-label small">Técnico Responsável</label>
-                                <select id="selectTecnico" class="form-select" required>
-
-
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label small">Prioridade</label>
-                                <select id="prioridade" class="form-select">
-                                    <option value="baixa">Baixa</option>
-                                    <option value="media">Média</option>
-                                    <option value="alta">Alta</option>
-                                    <option value="urgente">Urgente</option>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label small">Data Prevista</label>
-                                <input type="date" id="data_prevista" class="form-control" required>
-                            </div>
-                            <button type="submit" class="btn btn-primary w-100">Confirmar Atribuição</button>
-                        </form>
-                    </section>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <div class="modal fade" id="modalFoto" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content bg-transparent border-0">
-                <div class="modal-body p-0 text-center">
-                    <img id="imgModal" src="" class="img-fluid rounded shadow-lg">
+                <div class="col-md-6 mb-3 text-md-end">
+                    <label class="info-label">Data de Abertura</label>
+                    <div id="displayData" class="info-value">--/--/----</div>
                 </div>
             </div>
+
+            <div class="mb-3">
+                <label class="info-label">Descrição do Problema</label>
+                <textarea id="descProblema" class="form-control form-control-custom" rows="4"></textarea>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="info-label">Localização</label>
+                    <div id="displayLocal" class="info-value">Carregando...</div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="info-label">Status do Chamado</label>
+                    <select id="selectStatus" class="form-select form-control-custom">
+                        <option value="aberto">ABERTO</option>
+                        <option value="agendado">AGENDADO</option>
+                        <option value="em_execucao">EM EXECUÇÃO</option>
+                        <option value="concluido">CONCLUÍDO</option>
+                        <option value="fechado">FECHADO</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="fotosContainer" class="mt-3 d-flex gap-2 flex-wrap"></div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        const idChamado = <?= $id ?>;
+    <!-- Bloco 2: Atribuição e Prioridade -->
+    <div class="col-lg-6">
+        <div class="card detail-card p-4">
+            <h5 class="fw-bold mb-4 d-flex align-items-center">
+                <span class="rounded-circle bg-warning bg-opacity-10 p-2 me-2">
+                    <i class="bi bi-person-gear text-warning"></i>
+                </span>
+                Atribuição e Planejamento
+            </h5>
+            
+            <form id="formGestor">
+                <div class="mb-4">
+                    <label class="info-label">Técnico Responsável</label>
+                    <select id="selectTecnico" class="form-select form-control-custom">
+                        <option value="">Nenhum técnico atribuído</option>
+                    </select>
+                </div>
 
-        function verFoto(url) {
-            document.getElementById('imgModal').src = url;
-            new bootstrap.Modal(document.getElementById('modalFoto')).show();
-        }
+                <div class="mb-4">
+                    <label class="info-label">Nível de Prioridade</label>
+                    <select id="prioridade" class="form-select form-control-custom">
+                        <option value="baixa">BAIXA</option>
+                        <option value="media">MÉDIA</option>
+                        <option value="alta">ALTA</option>
+                        <option value="urgente">URGENTE</option>
+                    </select>
+                </div>
 
-        async function carregarDados() {
-            try {
-                // 1. Carrega Técnicos para o Select
-                const resTec = await fetch('api/usuarios.php');
-                const tecnicos = await resTec.json();
-                const select = document.getElementById('selectTecnico');
-                select.innerHTML = '<option value="">Selecione um técnico...</option>';
-                tecnicos.forEach(t => { select.innerHTML += `<option value="${t.id_usuario}">${t.nome}</option>`;
-                });
+                <div class="mb-4">
+                    <label class="info-label">Previsão de Conclusão</label>
+                    <input type="date" id="data_prevista" class="form-control form-control-custom">
+                </div>
 
-                // 2. Carrega Dados do Chamado
-                const c = await (await fetch(`api/chamados.php?id=${idChamado}`)).json();
-                
-                document.getElementById('detalhesChamado').innerHTML = `
-                    <div class="row">
-                        <div class="col-sm-6 mb-3">
-                            <label class="text-muted small d-block">Status</label>
-                            <span class="badge bg-secondary px-3 py-2">${c.status.toUpperCase()}</span>
-                        </div>
-                        <div class="col-sm-6 mb-3 text-sm-end">
-                            <label class="text-muted small d-block">Data de Abertura</label>
-                            <span>${new Date(c.data_abertura).toLocaleString('pt-BR')}</span>
-                        </div>
-                        <hr>
-                        <div class="col-12 mb-3">
-                            <label class="text-muted small d-block">Descrição do Problema</label>
-                            <p class="fw-semibold">${c.descricao_problema}</p>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="text-muted small d-block">Localização</label>
-                            <p>${c.bloco_nome} - ${c.ambiente_nome}</p>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="text-muted small d-block">Solicitante</label>
-                            <p>${c.solicitante_nome}</p>
-                        </div>
-                    </div>
-                    <div id="fotosContainer"></div>
-                `;
+                <div id="infoConclusao" class="mt-auto pt-3 border-top d-none">
+                    <label class="info-label text-success">Solução do Técnico</label>
+                    <p id="solucaoTecnica" class="small text-muted mb-0"></p>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
-                // 3. Carrega Fotos de Evidência
-                const resAnexos = await fetch(`api/anexos.php?id_chamado=${idChamado}`);
-                const anexos = await resAnexos.json();
-                
-                if(anexos.length > 0) {
-                    let htmlFotos = '<hr><h6 class="mb-3">Evidências:</h6><div class="row g-2">';
-                    anexos.forEach(arq => {
-                        htmlFotos += `
-                            <div class="col-4 col-md-3 text-center mb-2">
-                                <img src="${arq.caminho_arquivo}" class="thumb-img" onclick="verFoto('${arq.caminho_arquivo}')">
-                                <small class="text-muted" style="font-size: 0.7rem">${arq.tipo_anexo.toUpperCase()}</small>
-                            </div>`;
-                    });
-                    document.getElementById('fotosContainer').innerHTML = htmlFotos + '</div>';
-                }
+<!-- Botões de Ação no Rodapé -->
+<div class="mt-5 d-flex gap-3 justify-content-center pb-5">
+    <button type="button" onclick="excluirChamado()" class="btn btn-outline-danger px-5 py-3 rounded-pill fw-bold shadow-sm">
+        <i class="bi bi-trash me-2"></i>Excluir Chamado
+    </button>
+    <button type="button" onclick="salvarAlteracoes()" class="btn btn-primary px-5 py-3 rounded-pill fw-bold shadow-lg">
+        <i class="bi bi-check2-circle me-2"></i>Salvar Alterações
+    </button>
+</div>
 
-                // 4. Lógica de botões de Ação (UC08)
-                const area = document.getElementById('areaFechamento');
-                if (c.status === 'concluido') {
-                    area.innerHTML = `
-                        <div class="alert alert-success d-flex justify-content-between align-items-center shadow-sm">
-                            <div>
-                                <h6 class="mb-1 fw-bold">Serviço Concluído pelo Técnico</h6>
-                                <p class="mb-0 small">${c.solucao_tecnica || 'O técnico não deixou comentário.'}</p>
-                            </div>
-                            <button onclick="alterarStatusOS(${idChamado}, 'fechar')" class="btn btn-success px-4">Fechar O.S.</button>
-                        </div>`;
-                } else if (c.status === 'fechado') {
-                    area.innerHTML = `<button onclick="alterarStatusOS(${idChamado}, 'reabrir')" class="btn btn-warning w-100 shadow-sm">Reabrir Chamado</button>`;
-                }
+<!-- Modal para Ampliar Foto -->
+<div class="modal fade" id="modalFoto" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content bg-transparent border-0">
+            <div class="modal-body p-0 text-center">
+                <img id="imgModal" src="" class="img-fluid rounded-4 shadow-lg">
+                <button type="button" class="btn btn-light rounded-pill mt-3 px-4 fw-bold" data-bs-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
 
-            } catch (error) {
-                console.error("Erro ao carregar:", error);
-                document.getElementById('detalhesChamado').innerHTML = '<div class="alert alert-danger">Erro ao carregar dados.</div>';
+<script>
+    const idChamado = <?= $id ?>;
+
+    function ampliarFoto(url) {
+        document.getElementById('imgModal').src = url;
+        new bootstrap.Modal(document.getElementById('modalFoto')).show();
+    }
+
+    async function carregarDados() {
+        try {
+            // 1. Carrega Técnicos
+            const resTec = await fetch('api/usuarios.php?perfil=tecnico&ativo=1');
+            const tecWrap = await resTec.json();
+            const tecnicos = tecWrap.data || [];
+            const selTec = document.getElementById('selectTecnico');
+            tecnicos.forEach(t => {
+                selTec.innerHTML += `<option value="${t.id_usuario}">${t.nome}</option>`;
+            });
+
+            // 2. Carrega Dados do Chamado
+            const res = await fetch(`api/gestor_chamados.php?id=${idChamado}`);
+            const c = await res.json();
+
+            if (!c || !c.id_chamado) {
+                alert("Chamado não encontrado!");
+                window.location.href = 'gestor_chamados.php';
+                return;
             }
-        }
 
-        async function alterarStatusOS(id, acao) {
-            if(!confirm(`Deseja realmente ${acao} este chamado?`)) return;
-            const res = await fetch('api/gestor_acoes.php', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ id_chamado: id, acao: acao })
-            });
-            const data = await res.json();
-            if(data.success) location.reload();
-            else alert("Erro: " + data.message);
-        }
+            // Preenche Campos Estáticos
+            document.getElementById('displaySolicitante').innerText = c.solicitante_nome;
+            document.getElementById('displayData').innerText = new Date(c.data_abertura).toLocaleString('pt-BR');
+            document.getElementById('displayLocal').innerText = `${c.bloco_nome} - ${c.ambiente_nome}`;
+            
+            // Preenche Campos Editáveis
+            document.getElementById('descProblema').value = c.descricao_problema;
+            document.getElementById('selectStatus').value = c.status;
+            document.getElementById('selectTecnico').value = c.id_tecnico || "";
+            document.getElementById('prioridade').value = c.prioridade || "baixa";
+            if (c.data_prevista) {
+                document.getElementById('data_prevista').value = c.data_prevista.split(' ')[0];
+            }
 
-        document.getElementById('formAtribuir').onsubmit = async (e) => {
-            e.preventDefault();
-            const res = await fetch('api/atribuir_chamado.php', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    id_chamado: idChamado,
-                    id_tecnico: document.getElementById('selectTecnico').value,
-                    prioridade: document.getElementById('prioridade').value,
-                    data_prevista: document.getElementById('data_prevista').value
-                })
-            });
-            const data = await res.json();
-            if(data.success) window.location.href = 'gestor_chamados.php';
-            else alert("Erro ao atribuir!");
+            // Exibe solução se houver
+            if (c.solucao_tecnica) {
+                document.getElementById('infoConclusao').classList.remove('d-none');
+                document.getElementById('solucaoTecnica').innerText = c.solucao_tecnica;
+            }
+
+            // 3. Carrega Fotos
+            const resAnexos = await fetch(`api/anexos.php?id_chamado=${idChamado}`);
+            const anexos = await resAnexos.json();
+            const container = document.getElementById('fotosContainer');
+            if (anexos && anexos.length > 0) {
+                anexos.forEach(arq => {
+                    container.innerHTML += `<img src="${arq.caminho_arquivo}" class="thumb-img" onclick="ampliarFoto('${arq.caminho_arquivo}')">`;
+                });
+            }
+
+        } catch (error) {
+            console.error(error);
+            alert("Erro ao carregar dados do servidor.");
+        }
+    }
+
+    async function salvarAlteracoes() {
+        const dados = {
+            id_chamado: idChamado,
+            descricao_problema: document.getElementById('descProblema').value,
+            status: document.getElementById('selectStatus').value,
+            id_tecnico: document.getElementById('selectTecnico').value,
+            prioridade: document.getElementById('prioridade').value,
+            data_prevista: document.getElementById('data_prevista').value
         };
 
-        carregarDados();
-    </script>
-</body>
-</html>
+        try {
+            const res = await fetch('api/gestor_chamados.php', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dados)
+            });
+            const result = await res.json();
+            if (result.success) {
+                alert("Chamado atualizado com sucesso!");
+                location.reload();
+            } else {
+                alert("Erro: " + result.message);
+            }
+        } catch (e) {
+            alert("Erro de comunicação com o servidor.");
+        }
+    }
+
+    async function excluirChamado() {
+        if (!confirm("Tem certeza que deseja excluir este chamado permanentemente?")) return;
+
+        try {
+            const res = await fetch('api/gestor_chamados.php', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id_chamado: idChamado })
+            });
+            const result = await res.json();
+            if (result.success) {
+                alert("Chamado excluído com sucesso.");
+                window.location.href = 'gestor_chamados.php';
+            } else {
+                alert("Erro: " + result.message);
+            }
+        } catch (e) {
+            alert("Erro ao tentar excluir.");
+        }
+    }
+
+    carregarDados();
+</script>
+
+<?php require_once 'includes/gestor_footer.php'; ?>

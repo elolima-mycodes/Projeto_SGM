@@ -9,27 +9,56 @@ $pageTitle = 'Gestor - Adicionar Serviço';
 $activePage = 'infraestrutura';
 $pageHeading = 'Adicionar Serviço';
 $pageSubheading = 'Crie um novo tipo de serviço para o sistema.';
-$pageActionLabel = '';
-$pageActionLink = '';
+
 require_once 'includes/gestor_layout.php';
 ?>
 
-<div class="content-panel col-lg-6 px-0">
-    <form id="formAdicionarAmbiente" class="card-soft p-4">
-        <h2 class="fw-bold text-center mb-4">Adicionar Serviço</h2>
-        <div class="mb-3">
-            <label class="form-label fw-bold">Nome</label>
-            <textarea id="nomeAmbiente" class="form-control" rows="1"></textarea>
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="content-panel col-lg-6 px-0">
+            <form id="formAdicionarServico" class="card shadow-sm border-0 rounded-4 p-4 bg-white">
+                <div class="mb-3">
+                    <label class="form-label fw-bold text-secondary">Nome do Serviço</label>
+                    <input type="text" id="nomeServico" class="form-control" placeholder="Ex: Manutenção Elétrica" required>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label fw-bold text-secondary">Descrição (Opcional)</label>
+                    <textarea id="descricaoServico" class="form-control" rows="4" placeholder="Descreva o serviço..."></textarea>
+                </div>
+                <div class="d-flex gap-2 justify-content-center">
+                    <a href="gestor_lista_tipos_de_servico.php" class="btn btn-light py-2 px-4 fw-bold">Cancelar</a>
+                    <button type="submit" class="btn btn-primary py-2 px-4 fw-bold">Adicionar Serviço</button>
+                </div>
+            </form>
         </div>
-        <div class="mb-3">
-            <label class="form-label fw-bold">Descrição</label>
-            <textarea id="nomeAmbiente" class="form-control" rows="3"></textarea>
-        </div>
-        <div class="d-flex gap-2 justify-content-center">
-            <a href="gestor_lista_tipos_de_servico.php" class="btn btn-outline-secondary py-2 px-4">Cancelar</a>
-            <button type="submit" class="btn btn-primary py-2 px-4">Adicionar</button>
-        </div>
-    </form>
+    </div>
 </div>
+
+<script>
+    document.getElementById('formAdicionarServico').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const novoServico = {
+            nome: document.getElementById('nomeServico').value,
+            descricao: document.getElementById('descricaoServico').value,
+        };
+        try {
+            const response = await fetch('api/servicos.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(novoServico)
+            });
+            const result = await response.json();
+            if (result.success) {
+                alert('Serviço adicionado com sucesso!');
+                window.location.href = 'gestor_lista_tipos_de_servico.php';
+            } else {
+                alert('Erro: ' + result.message);
+            }
+        } catch (error) {
+            console.error('Erro na requisição:', error);
+            alert('Erro ao conectar com o servidor.');
+        }
+    });
+</script>
 
 <?php require_once 'includes/gestor_footer.php'; ?>

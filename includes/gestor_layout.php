@@ -34,8 +34,10 @@ if (!isset($pageActionLink)) {
         <div class="nav flex-column">
             <a href="gestor_dashboard.php" class="nav-link <?= $activePage === 'dashboard' ? 'active' : '' ?>"><i class="bi bi-grid-1x2"></i> Dashboard</a>
             <a href="gestor_chamados.php" class="nav-link <?= $activePage === 'chamados' ? 'active' : '' ?>"><i class="bi bi-ticket-perforated"></i> Chamados</a>
-            <a href="gestor_lista_blocos.php" class="nav-link <?= $activePage === 'infraestrutura' ? 'active' : '' ?>"><i class="bi bi-building"></i> Infraestrutura</a>
+            <a href="gestor_lista_blocos.php" class="nav-link <?= $activePage === 'blocos' ? 'active' : '' ?>"><i class="bi bi-building"></i> Blocos</a>
+            <a href="gestor_lista_ambientes.php" class="nav-link <?= $activePage === 'ambientes' ? 'active' : '' ?>"><i class="bi bi-door-open"></i> Ambientes</a>
             <a href="gestor_lista_usuarios.php" class="nav-link <?= $activePage === 'usuarios' ? 'active' : '' ?>"><i class="bi bi-people"></i> Utilizadores</a>
+            <a href="gestor_lista_tipos_de_servico.php" class="nav-link <?= $activePage === 'servicos' ? 'active' : '' ?>"><i class="bi bi-tools"></i> Serviços</a>
             <hr class="text-secondary mx-0">
             <a href="api/logout.php" class="nav-link text-danger"><i class="bi bi-box-arrow-left"></i> Sair</a>
         </div>
