@@ -27,57 +27,76 @@
                                 <label class="form-label fw-bold">Bloco</label>
                                 <select id="selectBloco" class="form-select" required>
                                     <option value="">Selecione o bloco...</option>
-                                </select>
-                            </div>
-                            <div class="d-flex gap-2 justify-content-center">
-                                <a href="gestor_lista_ambientes.php" class="btn btn-secondary py-2 w-40 fw-bold">Cancelar</a>
-                                <button type="submit" class="btn btn-primary w-40 fw-bold py-2">Adicionar</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        async function iniciar() {
-            const resB = await fetch('api/localizacoes.php?acao=listar_blocos');
-            const blocos = await resB.json();
-            const selB = document.getElementById('selectBloco');
-            blocos.forEach(b => selB.innerHTML += `<option value="${b.id_bloco}">${b.nome}</option>`);
-        }
+                                <?php
+                                session_start();
+                                if (!isset($_SESSION['user_id']) || $_SESSION['user_perfil'] !== 'gestor') {
+                                    header("Location: login.php");
+                                    exit;
+                                }
 
-        document.getElementById('formAdicionarAmbiente').addEventListener('submit', async (e) => {
-        e.preventDefault(); 
+                                $pageTitle = 'Gestor - Adicionar Ambiente';
+                                $activePage = 'infraestrutura';
+                                $pageHeading = 'Adicionar Ambiente';
+                                $pageSubheading = 'Registre um novo ambiente ligado a um bloco existente.';
+                                $pageActionLabel = '';
+                                $pageActionLink = '';
+                                require_once 'includes/gestor_layout.php';
+                                ?>
 
-        const novoAmbiente = {
-            nome: document.getElementById('nomeAmbiente').value,
-            id_bloco: document.getElementById('selectBloco').value
-        };
+                                <div class="content-panel col-lg-6 px-0">
+                                    <form id="formAdicionarAmbiente" class="card-soft p-4">
+                                        <h2 class="fw-bold text-center mb-4">Adicionar Ambiente</h2>
+                                        <div class="mb-3">
+                                            <label class="form-label fw-bold">Nome</label>
+                                            <textarea id="nomeAmbiente" class="form-control" rows="1"></textarea>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label fw-bold">Bloco</label>
+                                            <select id="selectBloco" class="form-select" required>
+                                                <option value="">Selecione o bloco...</option>
+                                            </select>
+                                        </div>
+                                        <div class="d-flex gap-2 justify-content-center">
+                                            <a href="gestor_lista_ambientes.php" class="btn btn-outline-secondary py-2 px-4">Cancelar</a>
+                                            <button type="submit" class="btn btn-primary py-2 px-4">Salvar</button>
+                                        </div>
+                                    </form>
+                                </div>
 
-        try {
-            const response = await fetch('api/ambientes.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json' 
-                },
-                body: JSON.stringify(novoAmbiente) 
-            });
+                                <script>
+                                    async function iniciar() {
+                                        const resB = await fetch('api/localizacoes.php?acao=listar_blocos');
+                                        const blocos = await resB.json();
+                                        const selB = document.getElementById('selectBloco');
+                                        blocos.forEach(b => {
+                                            selB.innerHTML += `<option value="${b.id_bloco}">${b.nome}</option>`;
+                                        });
+                                    }
 
-            const result = await response.json();
+                                    document.getElementById('formAdicionarAmbiente').addEventListener('submit', async (e) => {
+                                        e.preventDefault();
+                                        const novoAmbiente = {
+                                            nome: document.getElementById('nomeAmbiente').value,
+                                            id_bloco: document.getElementById('selectBloco').value
+                                        };
+                                        try {
+                                            const response = await fetch('api/ambientes.php', {
+                                                method: 'POST',
+                                                headers: { 'Content-Type': 'application/json' },
+                                                body: JSON.stringify(novoAmbiente)
+                                            });
+                                            const result = await response.json();
+                                            if (result.success === true || result.success === "true") {
+                                                window.location.href = 'gestor_lista_ambientes.php';
+                                            } else {
+                                                alert('Erro: ' + result.message);
+                                            }
+                                        } catch (error) {
+                                            console.error('Erro na comunicação:', error);
+                                            alert('Não foi possível conectar à API.');
+                                        }
+                                    });
+                                    iniciar();
+                                </script>
 
-            if (result.success === true || result.success === "true") {
-                window.location.href = 'gestor_lista_ambientes.php';
-            } else {
-                alert("Erro: " + result.message);
-            }
-        } catch (error) {
-            console.error("Erro na comunicação:", error);
-            alert("Não foi possível conectar à API.");
-        }
-    });
-        iniciar();
-    </script>
-</body>
-</html>
+                                <?php require_once 'includes/gestor_footer.php'; ?>

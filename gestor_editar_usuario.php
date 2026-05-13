@@ -1,62 +1,51 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor - Editar Usuário</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+<?php
+session_start();
+if (!isset($_SESSION['user_id']) || $_SESSION['user_perfil'] !== 'gestor') {
+    header("Location: login.php");
+    exit;
+}
 
-</head>
-<body class="bg-light d-flex align-items-center" style="min-height: 100vh;">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-6">
-                <div class="card shadow border-0 rounded-4">
-                    <div class="card-body p-4">
-                        <h2 class="fw-bold text-center mb-4">Editar Usuário</h2>
-                        
-                        <form>
+$pageTitle = 'Gestor - Editar Usuário';
+$activePage = 'usuarios';
+$pageHeading = 'Editar Usuário';
+$pageSubheading = 'Atualize os dados do utilizador.';
+$pageActionLabel = '';
+$pageActionLink = '';
+require_once 'includes/gestor_layout.php';
+?>
 
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">Nome</label>
-                                <textarea id="nomeAmbiente" class="form-control" rows="1"></textarea>
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">Email</label>
-                                <textarea id="nomeAmbiente" class="form-control" rows="1"></textarea>
-                            </div>
-
-                            
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">Perfil</label>
-                                <select id="selectBloco" class="form-select">
-                                    <option value="">Selecione o perfil...</option>
-                                </select>
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">Ativo</label>
-                                <select id="selectBloco" class="form-select">
-                                    <option value="">Selecione</option>
-                                </select>
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">Senha</label>
-                                <textarea id="nomeAmbiente" class="form-control" rows="1"></textarea>
-                            </div>
-
-                            <div class="d-flex gap-2 justify-content-center">
-                                <a href="gestor_lista_usuarios.php" class="btn btn-secondary py-2 w-40 fw-bold">Cancelar</a>
-                                <button type="submit" class="btn btn-primary w-40 fw-bold py-2">Salvar</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
+<div class="content-panel col-lg-6 px-0">
+    <form class="card-soft p-4">
+        <h2 class="fw-bold text-center mb-4">Editar Usuário</h2>
+        <div class="mb-3">
+            <label class="form-label fw-bold">Nome</label>
+            <input type="text" class="form-control">
         </div>
-    </div>
-</body>
-</html>
+        <div class="mb-3">
+            <label class="form-label fw-bold">Email</label>
+            <input type="email" class="form-control">
+        </div>
+        <div class="mb-3">
+            <label class="form-label fw-bold">Perfil</label>
+            <select class="form-select">
+                <option value="">Selecione o perfil...</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label fw-bold">Ativo</label>
+            <select class="form-select">
+                <option value="">Selecione</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label fw-bold">Senha</label>
+            <input type="password" class="form-control">
+        </div>
+        <div class="d-flex gap-2 justify-content-center">
+            <a href="gestor_lista_usuarios.php" class="btn btn-outline-secondary py-2 px-4">Cancelar</a>
+            <button type="submit" class="btn btn-primary py-2 px-4">Salvar</button>
+        </div>
+    </form>
+</div>
+
+<?php require_once 'includes/gestor_footer.php'; ?>

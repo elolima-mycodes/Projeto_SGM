@@ -44,13 +44,14 @@ switch ($method) {
         $data = json_decode(file_get_contents("php://input"));
 
         if (!isset($data->nome)) {
-            echo json_encode(["success" => "false", "message" => "Dados incompletos. Informe o nome do bloco"]);
+            echo json_encode(["success" => false, "message" => "Dados incompletos. Informe o nome do bloco"]);
             exit;
         }
 
         $nome = $conn->real_escape_string(trim($data->nome));
+        $descricao = isset($data->descricao) ? $conn->real_escape_string(trim($data->descricao)) : '';
 
-        $sql = "INSERT INTO blocos (nome) VALUES ('$nome')";
+        $sql = "INSERT INTO blocos (nome, descricao) VALUES ('$nome', '$descricao')";
 
         if ($conn->query($sql) === TRUE) {
             echo json_encode(["success" => true, "message" => "Bloco criado com sucesso!", "id_bloco" => $conn->insert_id]);

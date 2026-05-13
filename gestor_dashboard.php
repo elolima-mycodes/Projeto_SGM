@@ -15,172 +15,141 @@ if (!isset($_SESSION['user_perfil']) || $_SESSION['user_perfil'] !== 'gestor') {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
     <style>
         :root {
-            --primary: #2563eb;     
-            --dark-bg: #0f172a;     
-            --light-bg: #f1f5f9;     
-            --text-main: #1e293b;
-            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --sidebar-width: 260px;
+            --primary: #4f46e5;
+            --bg-light: #f8fafc;
+            --text-dark: #1e293b;
         }
 
-        body { 
-            background-color: var(--light-bg);
-            font-family: 'Inter', sans-serif;
-            color: var(--text-main);
-        }
+        body { background-color: var(--bg-light); font-family: 'Inter', sans-serif; overflow-x: hidden; }
 
-        .navbar-custom {
-            background-color: var(--dark-bg);
-            padding: 0.8rem 2rem;
-            border-bottom: 3px solid var(--primary);
-        }
-
-        .card-gestao {
-            border: none !important;
-            border-radius: 12px !important;
-            background: #ffffff;
-            box-shadow: var(--card-shadow);
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .card-gestao::before {
-            content: "";
-            position: absolute;
-            left: 0; top: 0; bottom: 0;
-            width: 5px;
-        }
-
-        .border-primary::before { background-color: #3b82f6; }
-        .border-warning::before { background-color: #f59e0b; }
-        .border-danger::before { background-color: #ef4444; }
-
-        .card-gestao:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        }
-
-        .btn-primario {
-            background-color: var(--primary);
+        /* Sidebar Fixa */
+        .sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: #1e293b;
+            position: fixed;
+            left: 0; top: 0;
+            padding: 1.5rem;
             color: white;
-            border-radius: 8px;
-            padding: 10px 25px;
-            border: none;
-            font-weight: 600;
         }
+
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 2rem;
+        }
+
+        /* Cartões de Métricas */
+        .stat-card {
+            border: none;
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: transform 0.2s;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+        .stat-card:hover { transform: translateY(-5px); }
+
+        .icon-box {
+            width: 48px; height: 48px;
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Estilos específicos dos cards */
+        .card-novos { background: #eff6ff; color: #1e40af; }
+        .card-novos .icon-box { background: #dbeafe; }
+
+        .card-andamento { background: #fffbeb; color: #92400e; }
+        .card-andamento .icon-box { background: #fef3c7; }
+
+        .card-critico { background: #fef2f2; color: #991b1b; }
+        .card-critico .icon-box { background: #fee2e2; }
+
+        /* Menu lateral */
+        .nav-link {
+            color: #94a3b8;
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            display: flex; align-items: center;
+            text-decoration: none;
+        }
+        .nav-link:hover, .nav-link.active {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+        .nav-link i { margin-right: 12px; }
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom shadow">
-        <div class="container-fluid">
-            <a class="navbar-brand fw-bold d-flex align-items-center" href="#">
-                <i class="bi bi-shield-check fs-4 me-2 text-info"></i> SGM | GESTÃO
-            </a>
-            
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="#"><i class="bi bi-speedometer2 me-1"></i> Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#"><i class="bi bi-person-circle me-1"></i> Perfil</a>
-                    </li>
-                </ul>
-                
-                <div class="d-flex align-items-center gap-3">
-                    <span class="text-white fw-light d-none d-md-inline">Olá, Gestor</span>
-                    <button type="button" class="btn btn-outline-light btn-sm ms-lg-3" data-bs-toggle="modal" data-bs-target="#modalLogout">
-                        <i class="bi bi-box-arrow-right me-1"></i> Sair
-                    </button>
-                </div>
-            </div>
+    <nav class="sidebar">
+        <h4 class="fw-bold mb-5"><i class="bi bi-shield-check"></i> SGM</h4>
+        <div class="nav flex-column">
+            <a href="gestor_dashboard.php" class="nav-link active"><i class="bi bi-grid-1x2"></i> Dashboard</a>
+            <a href="gestor_chamados.php" class="nav-link"><i class="bi bi-ticket-perforated"></i> Chamados</a>
+            <a href="gestor_lista_blocos.php" class="nav-link"><i class="bi bi-building"></i> Infraestrutura</a>
+            <a href="gestor_lista_usuarios.php" class="nav-link"><i class="bi bi-people"></i> Utilizadores</a>
+            <hr class="text-secondary">
+            <a href="api/logout.php" class="nav-link text-danger"><i class="bi bi-box-arrow-left"></i> Sair</a>
         </div>
     </nav>
 
-    <main class="py-5">
-        <div class="container">
-                    
-                    <div class="row mb-4 text-center">
-                        <div class="col mb-5">
-                           
-                            <h1 class="display-3 fw-bold" style="color: var(--azul-marinho)">Visão Geral</h1>
-                            <div class="mx-auto" style="width: auto; height: 5px; background-color: var(--azul-royal); border-radius: 5px;"></div>
-                        
-                        </div>
-                    </div>
+    <main class="main-content">
+        <header class="d-flex justify-content-between align-items-center mb-5">
+            <div>
+                <h2 class="fw-bold m-0">Olá, Gestor</h2>
+                <p class="text-muted">Aqui está o resumo da operação hoje.</p>
+            </div>
+            <button class="btn btn-primary px-4 rounded-pill">
+                <i class="bi bi-plus-lg"></i> Novo Chamado
+            </button>
+        </header>
 
-                    <div class="row mb-5 justify-content-center mt-5">
-                        <div class="col-md-4 mb-3">
-                            <div class="shadow-sm text-center p-3 card border-primary border-5">
-                                <div class="card-body">
-                                    <h6 class="text-muted fw-bold">Novas solicitações</h6>
-                                    <h2 id="numNovos" class="display-5 fw-bold text-primary">0</h2>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <div class="shadow-sm text-center p-3 card border-warning border-5">
-                                <div class="card-body">
-                                    <h6 class="text-muted fw-bold">Em Andamento</h6>
-                                    <h2 id="numAndamento" class="display-5 fw-bold text-warning">0</h2>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <div class="shadow-sm text-center p-3 card border-danger border-5">
-                                <div class="card-body">
-                                    <h6 class="text-muted fw-bold">Crítico</h6>
-                                    <h2 id="numCritico" class="display-5 fw-bold text-danger">0</h2>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row mt-4">
-                        <div class="d-flex col-12 gap-1 align-middle">
-                            <a href="gestor_chamados.php" class="btn btn-primario px-5 py-3 shadow-sm fw-bold">
-                               <i class="bi bi-list-check me-2"></i> Gerenciar Chamados
-                            </a>
-                            <a href="gestor_lista_ambientes.php" class="btn btn-primario px-5 py-3 shadow-sm fw-bold">
-                               <i class="bi bi-geo-alt me-2"></i> Gerenciar Ambientes
-                            </a>
-                            <a href="gestor_lista_blocos.php" class="btn btn-primario px-5 py-3 shadow-sm fw-bold">
-                               <i class="bi bi-building"></i> Gerenciar Blocos
-                            </a>
-                            <a href="gestor_lista_tipos_de_servico.php" class="btn btn-primario px-5 py-3 shadow-sm fw-bold">
-                               <i class="bi bi-geo-alt me-2"></i> Gerenciar Tipos de Serviço
-                            </a>
-                            <a href="gestor_lista_usuarios.php" class="btn btn-primario px-5 py-3 shadow-sm fw-bold">
-                               <i class="bi bi-person-fill"></i> Gerenciar Usuários
-                            </a>
-                        </div>
-                    </div>
-
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="stat-card card-novos">
+                    <div class="icon-box"><i class="bi bi-envelope-paper"></i></div>
+                    <span class="small fw-bold text-uppercase">Abertos</span>
+                    <h2 class="display-5 fw-bold m-0" id="numNovos">0</h2>
                 </div>
-            </main>
-        </div>
-    </div>
-
-    <div class="modal fade" id="modalLogout" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow">
-                <div class="modal-header text-white justify-content-center" style="background-color: var(--azul-marinho)">
-                    <h5 class="modal-title">Encerrar Sessão</h5>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card card-andamento">
+                    <div class="icon-box"><i class="bi bi-tools"></i></div>
+                    <span class="small fw-bold text-uppercase">Em Execução</span>
+                    <h2 class="display-5 fw-bold m-0" id="numAndamento">0</h2>
                 </div>
-                <div class="modal-body text-center py-5">
-                    <i class="bi bi-exclamation-circle text-danger display-3 mb-3"></i>
-                    <p class="fs-5 text-secondary">Sua sessão será encerrada!<br>Deseja continuar?</p>
-                </div>
-                <div class="modal-footer justify-content-center border-0 pb-4">
-                    <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Cancelar</button>
-                    <a href="api/logout.php" class="btn btn-danger px-4">Sair</a>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card card-critico">
+                    <div class="icon-box"><i class="bi bi-exclamation-triangle"></i></div>
+                    <span class="small fw-bold text-uppercase">Críticos</span>
+                    <h2 class="display-5 fw-bold m-0" id="numCritico">0</h2>
                 </div>
             </div>
         </div>
+
+        <div class="mt-5 p-4 bg-white rounded-4 shadow-sm">
+            <h5 class="fw-bold mb-4">Atividades Recentes</h5>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Solicitante</th>
+                            <th>Local</th>
+                            <th>Prioridade</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelaRecentes">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
     async function carregarStats() {
