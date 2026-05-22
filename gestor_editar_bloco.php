@@ -21,9 +21,9 @@ require_once 'includes/gestor_layout.php';
                     <label class="form-label fw-bold text-secondary">Nome do Bloco</label>
                     <input type="text" id="nomeBloco" class="form-control" placeholder="Ex: Pavilhão Norte" required>
                 </div>
-                <div class="mb-4">
-                    <label class="form-label fw-bold text-secondary">Descrição</label>
-                    <textarea id="descricaoBloco" class="form-control" rows="4" placeholder="Detalhes sobre o bloco..."></textarea>
+                <div class="mb-3">
+                    <label class="form-label fw-bold text-secondary">Descrição do Bloco</label>
+                    <textarea id="descricaoBloco" class="form-control" rows="3" placeholder="Descreva o propósito ou características deste bloco..."></textarea>
                 </div>
                 <div class="d-flex gap-2 justify-content-center">
                     <a href="gestor_lista_blocos.php" class="btn btn-light py-2 px-4 fw-bold">Cancelar</a>
@@ -43,6 +43,7 @@ require_once 'includes/gestor_layout.php';
         try {
             const res = await fetch(`api/blocos.php?id=${idBloco}`);
             const data = await res.json();
+            // api/blocos.php agora retorna nome, descricao e nomes_ambientes.
             if (data.success && data.data && data.data[0]) {
                 const b = data.data[0];
                 document.getElementById('nomeBloco').value = b.nome;

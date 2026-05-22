@@ -60,10 +60,12 @@ require_once 'includes/gestor_layout.php';
 <script>
     async function carregarServicos() {
         try {
-            const res = await fetch('api/servicos.php');
+            const res = await fetch('api/tipos_de_servico.php');
             const json = await res.json();
             const data = json.data || [];
             const tabela = document.getElementById('tabelaServicos');
+
+            // api/tipos_de_servico.php agora retorna nome e descricao, por isso mostramos a descrição também.
             
             if (data.length === 0) {
                 tabela.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-muted">Nenhum serviço cadastrado.</td></tr>';
@@ -72,15 +74,15 @@ require_once 'includes/gestor_layout.php';
 
             tabela.innerHTML = data.map(s => `
                 <tr>
-                    <td class="ps-4 fw-bold">#${s.id_servico}</td>
+                    <td class="ps-4 fw-bold">#${s.id_tipo}</td>
                     <td><span class="fw-semibold text-primary">${s.nome}</span></td>
-                    <td class="text-muted small" style="max-width: 300px;">${s.descricao || '<span class="fst-italic">Sem descrição</span>'}</td>
+                    <td>${s.descricao ? s.descricao : '<span class="text-muted">-</span>'}</td>
                     <td class="text-end pe-4">
                         <div class="btn-group">
-                            <a href="gestor_editar_servico.php?id=${s.id_servico}" class="btn btn-sm btn-outline-primary rounded-pill me-2 px-3">
+                            <a href="gestor_editar_servico.php?id=${s.id_tipo}" class="btn btn-sm btn-outline-primary rounded-pill me-2 px-3">
                                 <i class="bi bi-pencil me-1"></i> Editar
                             </a>
-                            <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="setIDExclusao(${s.id_servico})">
+                            <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="setIDExclusao(${s.id_tipo})">
                                 <i class="bi bi-trash me-1"></i> Excluir
                             </button>
                         </div>
@@ -101,10 +103,10 @@ require_once 'includes/gestor_layout.php';
     async function confirmarExclusao() {
         const id = document.getElementById('idParaExcluir').value;
         try {
-            const res = await fetch('api/servicos.php', {
+            const res = await fetch('api/tipos_de_servico.php', {
                 method: 'DELETE',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id_servico: id })
+                body: JSON.stringify({ id_tipo: id })
             });
             const result = await res.json();
             if (result.success) {

@@ -21,9 +21,9 @@ require_once 'includes/gestor_layout.php';
                     <label class="form-label fw-bold text-secondary">Nome do Serviço</label>
                     <input type="text" id="nomeServico" class="form-control" required>
                 </div>
-                <div class="mb-4">
-                    <label class="form-label fw-bold text-secondary">Descrição</label>
-                    <textarea id="descricaoServico" class="form-control" rows="4"></textarea>
+                <div class="mb-3">
+                    <label class="form-label fw-bold text-secondary">Descrição do Serviço</label>
+                    <textarea id="descricaoServico" class="form-control" rows="3" placeholder="Explique o que este tipo de serviço cobre..."></textarea>
                 </div>
                 <div class="d-flex gap-2 justify-content-center">
                     <a href="gestor_lista_tipos_de_servico.php" class="btn btn-light py-2 px-4 fw-bold">Cancelar</a>
@@ -41,11 +41,13 @@ require_once 'includes/gestor_layout.php';
     async function carregarDados() {
         if (!idServico) return;
         try {
-            const res = await fetch(`api/servicos.php?id=${idServico}`);
+            const res = await fetch(`api/tipos_de_servico.php?id=${idServico}`);
             const data = await res.json();
-            if (data.success && data.data) {
-                document.getElementById('nomeServico').value = data.data.nome;
-                document.getElementById('descricaoServico').value = data.data.descricao;
+            // api/tipos_de_servico.php agora retorna id_tipo, nome e descricao.
+            if (data.success && data.data && data.data.length) {
+                const servico = data.data[0];
+                document.getElementById('nomeServico').value = servico.nome;
+                document.getElementById('descricaoServico').value = servico.descricao || '';
             }
         } catch (error) {
             console.error('Erro ao carregar serviço:', error);
@@ -55,12 +57,12 @@ require_once 'includes/gestor_layout.php';
     document.getElementById('formEditarServico').addEventListener('submit', async (e) => {
         e.preventDefault();
         const servico = {
-            id_servico: idServico,
+            id_tipo: idServico,
             nome: document.getElementById('nomeServico').value,
             descricao: document.getElementById('descricaoServico').value
         };
         try {
-            const res = await fetch('api/servicos.php', {
+            const res = await fetch('api/tipos_de_servico.php', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(servico)

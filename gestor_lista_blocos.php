@@ -21,6 +21,7 @@ require_once 'includes/gestor_layout.php';
                 <tr>
                     <th class="ps-4">ID</th>
                     <th>Nome do Bloco</th>
+                    <th>Descrição</th>
                     <th class="text-end pe-4">Ações</th>
                 </tr>
             </thead>
@@ -78,7 +79,7 @@ require_once 'includes/gestor_layout.php';
             const tabela = document.getElementById('tabelaBlocos');
             
             if (data.length === 0) {
-                tabela.innerHTML = '<tr><td colspan="3" class="text-center py-4 text-muted">Nenhum bloco encontrado.</td></tr>';
+                tabela.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-muted">Nenhum bloco encontrado.</td></tr>';
                 return;
             }
 
@@ -86,6 +87,7 @@ require_once 'includes/gestor_layout.php';
                 <tr>
                     <td class="ps-4 fw-bold">#${b.id_bloco}</td>
                     <td><span><i class="bi bi-building me-2"></i>${b.nome}</span></td>
+                    <td>${b.descricao ? b.descricao : '<span class="text-muted">-</span>'}</td>
                     <td class="text-end pe-4">
                         <button class="btn btn-sm btn-outline-info rounded-pill me-2 px-3" onclick="abrirModalAmbientes(${b.id_bloco}, '${b.nome}')">
                             <i class="bi bi-eye me-1"></i> Ver Ambientes
@@ -101,7 +103,7 @@ require_once 'includes/gestor_layout.php';
             `).join('');
         } catch (error) {
             console.error('Erro:', error);
-            document.getElementById('tabelaBlocos').innerHTML = '<tr><td colspan="3" class="text-center py-4 text-danger">Erro ao conectar com o servidor.</td></tr>';
+            document.getElementById('tabelaBlocos').innerHTML = '<tr><td colspan="4" class="text-center py-4 text-danger">Erro ao conectar com o servidor.</td></tr>';
         }
     }
 

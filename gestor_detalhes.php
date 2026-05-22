@@ -109,6 +109,12 @@ require_once 'includes/gestor_layout.php';
                     <div id="displayLocal" class="info-value">Carregando...</div>
                 </div>
                 <div class="col-md-6 mb-3">
+                    <label class="info-label">Tipo de Serviço</label>
+                    <select id="selectTipoServico" class="form-select form-control-custom">
+                        <option value="">Nenhum tipo selecionado</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
                     <label class="info-label">Status do Chamado</label>
                     <select id="selectStatus" class="form-select form-control-custom">
                         <option value="aberto">ABERTO</option>
@@ -207,6 +213,13 @@ require_once 'includes/gestor_layout.php';
                 selTec.innerHTML += `<option value="${t.id_usuario}">${t.nome}</option>`;
             });
 
+            const resTipos = await fetch('api/localizacoes.php?acao=listar_tipos');
+            const tipos = await resTipos.json();
+            const selTipoServico = document.getElementById('selectTipoServico');
+            tipos.forEach(t => {
+                selTipoServico.innerHTML += `<option value="${t.id_tipo}">${t.nome}</option>`;
+            });
+
             // 2. Carrega Dados do Chamado
             const res = await fetch(`api/gestor_chamados.php?id=${idChamado}`);
             const c = await res.json();
@@ -226,6 +239,7 @@ require_once 'includes/gestor_layout.php';
             document.getElementById('descProblema').value = c.descricao_problema;
             document.getElementById('selectStatus').value = c.status;
             document.getElementById('selectTecnico').value = c.id_tecnico || "";
+            document.getElementById('selectTipoServico').value = c.id_tipo_servico || "";
             document.getElementById('prioridade').value = c.prioridade || "baixa";
             if (c.data_prevista) {
                 document.getElementById('data_prevista').value = c.data_prevista.split(' ')[0];
@@ -259,6 +273,7 @@ require_once 'includes/gestor_layout.php';
             descricao_problema: document.getElementById('descProblema').value,
             status: document.getElementById('selectStatus').value,
             id_tecnico: document.getElementById('selectTecnico').value,
+            id_tipo_servico: document.getElementById('selectTipoServico').value || null,
             prioridade: document.getElementById('prioridade').value,
             data_prevista: document.getElementById('data_prevista').value
         };

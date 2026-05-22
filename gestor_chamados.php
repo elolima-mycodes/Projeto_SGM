@@ -84,7 +84,7 @@ require_once 'includes/gestor_layout.php';
 
     async function carregarChamados(status = '') {
         try {
-            const res = await fetch(`api/chamados.php?status=${status}`);
+            const res = await fetch(`api/gestor_chamados.php?status=${status}`);
             const chamados = await res.json();
             const body = document.getElementById('tabelaGeral');
 

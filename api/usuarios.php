@@ -80,29 +80,57 @@ switch ($method) {
         }
 
         $id = (int)$data->id_usuario;
-        $nome = $conn->real_escape_string($data->nome);
-        $email = $conn->real_escape_string($data->email);
-        $perfil = $conn->real_escape_string($data->perfil);
-        $ativo = (int)$data->ativo;
 
-        $updateSenha = "";
-        if (isset($data->senha) && !empty($data->senha)) {
-            $senha_hash = password_hash($data->senha, PASSWORD_DEFAULT);
-            $updateSenha = ", senha_hash = '$senha_hash'";
+        // Atualiza apenas os campos que foram enviados no JSON.
+        $fields = [];
+        $values = [];
+        $types = "";
+
+        if (isset($data->nome)) {
+            $fields[] = "nome = ?";
+            $values[] = $conn->real_escape_string($data->nome);
+            $types .= "s";
+        }
+        if (isset($data->email)) {
+            $fields[] = "email = ?";
+            $values[] = $conn->real_escape_string($data->email);
+            $types .= "s";
+        }
+        if (isset($data->perfil)) {
+            $fields[] = "perfil = ?";
+            $values[] = $conn->real_escape_string($data->perfil);
+            $types .= "s";
+        }
+        if (isset($data->ativo)) {
+            $fields[] = "ativo = ?";
+            $values[] = (int)$data->ativo;
+            $types .= "i";
         }
 
-        $sql = "UPDATE usuarios SET 
-                nome = '$nome', 
-                email = '$email', 
-                perfil = '$perfil', 
-                ativo = $ativo 
-                $updateSenha
-                WHERE id_usuario = $id";
+        $updateSenha = "";
+        if (isset($data->senha) && $data->senha !== "") {
+            $senha_hash = password_hash($data->senha, PASSWORD_DEFAULT);
+            $fields[] = "senha_hash = ?";
+            $values[] = $senha_hash;
+            $types .= "s";
+        }
 
-        if ($conn->query($sql)) {
+        if (empty($fields)) {
+            echo json_encode(["success" => false, "message" => "Nenhum campo para atualizar."]);
+            exit;
+        }
+
+        $sql = "UPDATE usuarios SET " . implode(", ", $fields) . " WHERE id_usuario = ?";
+        $values[] = $id;
+        $types .= "i";
+
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param($types, ...$values);
+
+        if ($stmt->execute()) {
             echo json_encode(["success" => true]);
         } else {
-            echo json_encode(["success" => false, "message" => "Erro ao atualizar: " . $conn->error]);
+            echo json_encode(["success" => false, "message" => "Erro ao atualizar: " . $stmt->error]);
         }
         break;
 

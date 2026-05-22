@@ -63,7 +63,8 @@ require_once 'includes/gestor_layout.php';
     async function carregarUsuarios() {
         try {
             const res = await fetch('api/usuarios.php');
-            const data = await res.json();
+            const json = await res.json();
+            const data = json.data || [];
             const tabela = document.getElementById('tabelaUsuarios');
             
             if (data.length === 0) {

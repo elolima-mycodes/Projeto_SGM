@@ -34,8 +34,9 @@ switch ($method) {
         }
 
         $nome = $conn->real_escape_string(trim($data->nome));
+        $descricao = $conn->real_escape_string(trim($data->descricao));
 
-        $sql = "INSERT INTO tipos_servico (nome) VALUES ('$nome')";
+        $sql = "INSERT INTO tipos_servico (nome, descricao) VALUES ('$nome', '$descricao')";
 
         if ($conn->query($sql) === TRUE) {
             echo json_encode(["success" => true, "message" => "Serviço criado com sucesso!", "id_tipo" => $conn->insert_id]);
@@ -54,8 +55,9 @@ switch ($method) {
 
         $id_tipo = (int)$data->id_tipo;
         $nome = $conn->real_escape_string(trim($data->nome));
+        $descricao = $conn->real_escape_string(trim($data->descricao));
 
-        $sql = "UPDATE tipos_servico SET nome = '$nome' WHERE id_tipo = $id_tipo";
+        $sql = "UPDATE tipos_servico SET nome = '$nome', descricao = '$descricao' WHERE id_tipo = $id_tipo";
 
         if ($conn->query($sql) === TRUE) {
             echo json_encode(["success" => true, "message" => "Serviço atualizado com sucesso!"]);

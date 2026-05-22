@@ -13,6 +13,9 @@ $pageSubheading = 'Crie um novo tipo de serviço para o sistema.';
 require_once 'includes/gestor_layout.php';
 ?>
 
+<a href="gestor_lista_tipos_de_servico.php" class="btn btn-outline-primary btn-sm mb-3">
+    <i class="bi bi-arrow-left me-2"></i> Voltar
+</a>
 <div class="container-fluid">
     <div class="row justify-content-center">
         <div class="content-panel col-lg-6 px-0">
@@ -21,9 +24,9 @@ require_once 'includes/gestor_layout.php';
                     <label class="form-label fw-bold text-secondary">Nome do Serviço</label>
                     <input type="text" id="nomeServico" class="form-control" placeholder="Ex: Manutenção Elétrica" required>
                 </div>
-                <div class="mb-4">
-                    <label class="form-label fw-bold text-secondary">Descrição (Opcional)</label>
-                    <textarea id="descricaoServico" class="form-control" rows="4" placeholder="Descreva o serviço..."></textarea>
+                <div class="mb-3">
+                    <label class="form-label fw-bold text-secondary">Descrição do Serviço</label>
+                    <textarea id="descricaoServico" class="form-control" rows="3" placeholder="Explique o que este tipo de serviço cobre..."></textarea>
                 </div>
                 <div class="d-flex gap-2 justify-content-center">
                     <a href="gestor_lista_tipos_de_servico.php" class="btn btn-light py-2 px-4 fw-bold">Cancelar</a>
@@ -39,10 +42,11 @@ require_once 'includes/gestor_layout.php';
         e.preventDefault();
         const novoServico = {
             nome: document.getElementById('nomeServico').value,
-            descricao: document.getElementById('descricaoServico').value,
+            descricao: document.getElementById('descricaoServico').value
         };
+        // Agora a API de tipos de serviço aceita nome e descrição.
         try {
-            const response = await fetch('api/servicos.php', {
+            const response = await fetch('api/tipos_de_servico.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(novoServico)

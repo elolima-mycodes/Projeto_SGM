@@ -14,6 +14,9 @@ $pageActionLink = '';
 require_once 'includes/gestor_layout.php';
 ?>
 
+<a href="gestor_lista_usuarios.php" class="btn btn-outline-primary btn-sm mb-3">
+    <i class="bi bi-arrow-left me-2"></i> Voltar
+</a>
 <div class="container-fluid">
     <div class="row justify-content-center">
         <div class="content-panel col-lg-8 px-0">

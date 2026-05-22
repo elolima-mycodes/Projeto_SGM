@@ -85,7 +85,7 @@ require_once 'includes/gestor_layout.php';
             document.getElementById('numCritico').innerText = data.urgentes;
 
             // Carregar recentes (exemplo simplificado baseado na estrutura anterior)
-            const resChamados = await fetch('api/chamados.php');
+            const resChamados = await fetch('api/gestor_chamados.php');
             const chamadosData = await resChamados.json();
             const recentes = Array.isArray(chamadosData) ? chamadosData.slice(0, 5) : [];
             

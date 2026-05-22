@@ -44,12 +44,12 @@ switch ($method) {
         $data = json_decode(file_get_contents("php://input"));
 
         if (!isset($data->nome)) {
-            echo json_encode(["success" => false, "message" => "Dados incompletos. Informe o nome do bloco"]);
+            echo json_encode(["success" => "false", "message" => "Dados incompletos. Informe o nome do bloco"]);
             exit;
         }
 
         $nome = $conn->real_escape_string(trim($data->nome));
-        $descricao = isset($data->descricao) ? $conn->real_escape_string(trim($data->descricao)) : '';
+        $descricao = $conn->real_escape_string(trim($data->descricao));
 
         $sql = "INSERT INTO blocos (nome, descricao) VALUES ('$nome', '$descricao')";
 
@@ -70,8 +70,9 @@ switch ($method) {
 
         $id_bloco = (int)$data->id_bloco;
         $nome = $conn->real_escape_string(trim($data->nome));
+        $descricao = $conn->real_escape_string(trim($data->descricao));
 
-        $sql = "UPDATE blocos SET nome = '$nome' WHERE id_bloco = $id_bloco";
+        $sql = "UPDATE blocos SET nome = '$nome', descricao = '$descricao' WHERE id_bloco = $id_bloco";
 
         if ($conn->query($sql) === TRUE) {
             echo json_encode(["success" => true, "message" => "Bloco atualizado com sucesso!"]);
