@@ -69,7 +69,7 @@ if (!isset($pageSubheading)) {
                         <li class="nav-item">
                             <a class="nav-link <?= $activePage === 'dashboard' ? 'active' : '' ?>" href="solicitante_dashboard.php">Minhas Solicitações</a>
                         </li>
-                        <li class="nav-item">
+                        <li class="nav-item ms-2">
                             <a class="nav-link <?= $activePage === 'abrir_chamado' ? 'active' : '' ?>" href="solicitante_abrir_chamado.php">Novo Chamado</a>
                         </li>
                     <?php elseif ($_SESSION['user_perfil'] === 'tecnico'): ?>

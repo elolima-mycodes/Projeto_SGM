@@ -272,10 +272,10 @@ require_once 'includes/gestor_layout.php';
             id_chamado: idChamado,
             descricao_problema: document.getElementById('descProblema').value,
             status: document.getElementById('selectStatus').value,
-            id_tecnico: document.getElementById('selectTecnico').value,
-            id_tipo_servico: document.getElementById('selectTipoServico').value || null,
+            id_tecnico: document.getElementById('selectTecnico').value ? parseInt(document.getElementById('selectTecnico').value, 10) : null,
+            id_tipo_servico: document.getElementById('selectTipoServico').value ? parseInt(document.getElementById('selectTipoServico').value, 10) : null,
             prioridade: document.getElementById('prioridade').value,
-            data_prevista: document.getElementById('data_prevista').value
+            data_prevista: document.getElementById('data_prevista').value || null
         };
 
         try {
@@ -285,15 +285,17 @@ require_once 'includes/gestor_layout.php';
                 body: JSON.stringify(dados)
             });
             const result = await res.json();
-            if (result.success) {
+            if (res.ok && result.success) {
                 alert("Chamado atualizado com sucesso!");
-                location.reload();
+                window.location.href = 'gestor_chamados.php';
             } else {
-                alert("Erro: " + result.message);
+                const msg = result.message || (res.statusText ? res.statusText : 'Erro desconhecido');
+                alert("Erro ao atualizar: " + msg);
             }
         } catch (e) {
             alert("Erro de comunicação com o servidor.");
         }
+        location
     }
 
     async function excluirChamado() {

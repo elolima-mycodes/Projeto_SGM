@@ -31,7 +31,20 @@ switch ($method) {
         $userId = $_SESSION['user_id'];
 
         if ($id > 0) {
-            $stmt = $conn->prepare("SELECT c.*, a.nome as ambiente_nome FROM chamados c JOIN ambientes a ON c.id_ambiente = a.id_ambiente WHERE c.id_chamado = ? AND c.id_solicitante = ?");
+            $stmt = $conn->prepare("SELECT 
+                c.*, 
+                a.nome as ambiente_nome, 
+                b.nome as bloco_nome,
+                b.id_bloco,
+                u_tec.nome as tecnico_nome, 
+                ts.nome as tipo_servico_nome
+            FROM chamados c 
+            JOIN ambientes a ON c.id_ambiente = a.id_ambiente 
+            JOIN blocos b ON a.id_bloco = b.id_bloco
+            LEFT JOIN usuarios u_tec ON c.id_tecnico = u_tec.id_usuario 
+            LEFT JOIN tipos_servico ts ON c.id_tipo_servico = ts.id_tipo
+            WHERE c.id_chamado = ? AND c.id_solicitante = ?");
+            
             $stmt->bind_param("ii", $id, $userId);
             $stmt->execute();
             $res = $stmt->get_result();
@@ -43,7 +56,23 @@ switch ($method) {
             }
         } else {
             // Lista todos os chamados do solicitante
-            $stmt = $conn->prepare("SELECT id_chamado, descricao_problema, status, prioridade, data_abertura FROM chamados WHERE id_solicitante = ? ORDER BY data_abertura DESC");
+            $stmt = $conn->prepare("SELECT 
+                c.id_chamado, 
+                c.descricao_problema, 
+                c.status, 
+                c.prioridade, 
+                c.data_abertura, 
+                c.id_ambiente,
+                c.id_tipo_servico,
+                a.nome as ambiente_nome, 
+                b.nome as bloco_nome,
+                b.id_bloco
+            FROM chamados c 
+            JOIN ambientes a ON c.id_ambiente = a.id_ambiente 
+            JOIN blocos b ON a.id_bloco = b.id_bloco
+            WHERE c.id_solicitante = ? 
+            ORDER BY c.data_abertura DESC");
+            
             $stmt->bind_param("i", $userId);
             $stmt->execute();
             echo json_encode($stmt->get_result()->fetch_all(MYSQLI_ASSOC));
@@ -76,7 +105,7 @@ switch ($method) {
         break;
 
     case 'PUT':
-        // Atualização parcial: solicitante pode alterar apenas a descrição enquanto status for 'aberto'
+        // Atualização parcial: solicitante pode alterar descrição, ambiente e tipo de serviço enquanto status for 'aberto'
         $data = json_decode(file_get_contents("php://input"));
         if (!$data || !isset($data->id_chamado)) {
             echo json_encode(["success" => false, "message" => "ID do chamado necessário."]);
@@ -102,14 +131,17 @@ switch ($method) {
             exit;
         }
 
-        if (!isset($data->descricao_problema)) {
-            echo json_encode(["success" => false, "message" => "Nenhum campo para atualizar."]);
+        $descricao = isset($data->descricao_problema) ? trim($data->descricao_problema) : '';
+        $id_ambiente = isset($data->id_ambiente) ? (int)$data->id_ambiente : 0;
+        $id_tipo_servico = isset($data->id_tipo_servico) ? (int)$data->id_tipo_servico : 0;
+
+        if (empty($descricao) || $id_ambiente <= 0 || $id_tipo_servico <= 0) {
+            echo json_encode(["success" => false, "message" => "Preencha todos os campos obrigatórios."]);
             exit;
         }
 
-        $descricao = $data->descricao_problema;
-        $stmt = $conn->prepare("UPDATE chamados SET descricao_problema = ? WHERE id_chamado = ? AND id_solicitante = ?");
-        $stmt->bind_param("sii", $descricao, $id, $userId);
+        $stmt = $conn->prepare("UPDATE chamados SET descricao_problema = ?, id_ambiente = ?, id_tipo_servico = ? WHERE id_chamado = ? AND id_solicitante = ?");
+        $stmt->bind_param("siiii", $descricao, $id_ambiente, $id_tipo_servico, $id, $userId);
 
         if ($stmt->execute()) {
             echo json_encode(["success" => true]);

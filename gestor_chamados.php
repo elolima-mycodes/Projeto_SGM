@@ -31,13 +31,14 @@ require_once 'includes/gestor_layout.php';
                     <th>Local / Tipo</th>
                     <th>Prioridade</th>
                     <th>Técnico</th>
+                    <th>Anexos</th>
                     <th>Status</th>
                     <th class="text-end pe-4">Ações</th>
                 </tr>
             </thead>
             <tbody id="tabelaGeral">
                 <tr>
-                    <td colspan="7" class="text-center py-4">
+                    <td colspan="8" class="text-center py-4">
                         <div class="spinner-border text-primary spinner-border-sm me-2"></div>
                         Carregando chamados...
                     </td>
@@ -89,7 +90,7 @@ require_once 'includes/gestor_layout.php';
             const body = document.getElementById('tabelaGeral');
 
             if (chamados.length === 0) {
-                body.innerHTML = '<tr><td colspan="7" class="text-center py-4 text-muted">Nenhum chamado encontrado.</td></tr>';
+                body.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-muted">Nenhum chamado encontrado.</td></tr>';
                 return;
             }
 
@@ -105,6 +106,7 @@ require_once 'includes/gestor_layout.php';
                     </td>
                     <td><span class="small fw-bold ${coresPrioridade[c.prioridade.toLowerCase()] || ''}"><i class="bi bi-circle-fill me-1" style="font-size: 0.6rem;"></i>${c.prioridade.toUpperCase()}</span></td>
                     <td><span class="text-muted small">${c.tecnico_nome || '<em>Não atribuído</em>'}</span></td>
+                    <td class="text-center" id="anexos-${c.id_chamado}"><span class="text-muted">Carregando...</span></td>
                     <td><span class="badge ${coresStatus[c.status] || 'bg-light'} rounded-pill px-2">${c.status.replace('_', ' ').toUpperCase()}</span></td>
                     <td class="text-end pe-4">
                         <a href="gestor_detalhes.php?id=${c.id_chamado}" class="btn btn-sm btn-outline-primary rounded-pill px-3">
@@ -113,9 +115,26 @@ require_once 'includes/gestor_layout.php';
                     </td>
                 </tr>
             `).join('');
+            chamados.forEach(c => carregarAnexosLista(c.id_chamado));
         } catch (error) {
             console.error('Erro ao carregar chamados:', error);
-            document.getElementById('tabelaGeral').innerHTML = '<tr><td colspan="7" class="text-center py-4 text-danger">Erro ao carregar chamados.</td></tr>';
+                document.getElementById('tabelaGeral').innerHTML = '<tr><td colspan="8" class="text-center py-4 text-danger">Erro ao carregar chamados.</td></tr>';
+        }
+    }
+
+    async function carregarAnexosLista(idChamado) {
+        try {
+            const res = await fetch(`api/anexos.php?id_chamado=${idChamado}`);
+            const anexos = await res.json();
+            const celula = document.getElementById(`anexos-${idChamado}`);
+            if (!celula) return;
+            if (anexos && anexos.length > 0) {
+                celula.innerHTML = anexos.map(arq => `<img src="${arq.caminho_arquivo}" class="thumb-img" style="width:40px;height:40px;" onclick="verFoto('${arq.caminho_arquivo}')" title="Visualizar anexo">`).join('');
+            } else {
+                celula.innerHTML = '<span class="text-muted">-</span>';
+            }
+        } catch (error) {
+            console.error('Erro ao carregar anexos da lista:', error);
         }
     }
 
