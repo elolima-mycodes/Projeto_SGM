@@ -61,6 +61,14 @@ require_once 'includes/gestor_layout.php';
                         <textarea id="descricaoProblema" class="form-control border-0 bg-light py-2" rows="5" required placeholder="Descreva o problema para o técnico..."></textarea>
                     </div>
 
+                    <div class="col-12">
+                        <label class="form-label fw-bold small text-uppercase text-muted">Anexar Foto (Opcional)</label>
+                        <div class="input-group">
+                            <input type="file" id="foto" name="foto" class="form-control border-0 bg-light py-2" accept="image/*">
+                            <span class="input-group-text border-0 bg-light"><i class="bi bi-camera"></i></span>
+                        </div>
+                    </div>
+
                     <div class="col-12 d-flex justify-content-between align-items-center mt-4">
                         <a href="gestor_chamados.php" class="btn btn-light rounded-pill px-4 fw-bold">Cancelar</a>
                         <button type="submit" class="btn btn-primary rounded-pill px-5 fw-bold">Abrir Chamado</button>
@@ -139,6 +147,12 @@ require_once 'includes/gestor_layout.php';
         if (tecnico) {
             payload.id_tecnico = parseInt(tecnico, 10);
         }
+
+        const fotoFile = document.getElementById('foto').files[0];
+        if (fotoFile) {
+            formData.append('foto', fotoFile);
+        }
+
 
         try {
             const response = await fetch('api/gestor_chamados.php', {

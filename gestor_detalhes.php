@@ -241,8 +241,8 @@ require_once 'includes/gestor_layout.php';
             document.getElementById('selectTecnico').value = c.id_tecnico || "";
             document.getElementById('selectTipoServico').value = c.id_tipo_servico || "";
             document.getElementById('prioridade').value = c.prioridade || "baixa";
-            if (c.data_prevista) {
-                document.getElementById('data_prevista').value = c.data_prevista.split(' ')[0];
+            if (c.data_previsao_conclusao) {
+                document.getElementById('data_prevista').value = c.data_previsao_conclusao.split(' ')[0];
             }
 
             // Exibe solução se houver
@@ -275,7 +275,7 @@ require_once 'includes/gestor_layout.php';
             id_tecnico: document.getElementById('selectTecnico').value ? parseInt(document.getElementById('selectTecnico').value, 10) : null,
             id_tipo_servico: document.getElementById('selectTipoServico').value ? parseInt(document.getElementById('selectTipoServico').value, 10) : null,
             prioridade: document.getElementById('prioridade').value,
-            data_prevista: document.getElementById('data_prevista').value || null
+            data_previsao_conclusao: document.getElementById('data_prevista').value || null
         };
 
         try {
@@ -295,7 +295,6 @@ require_once 'includes/gestor_layout.php';
         } catch (e) {
             alert("Erro de comunicação com o servidor.");
         }
-        location
     }
 
     async function excluirChamado() {

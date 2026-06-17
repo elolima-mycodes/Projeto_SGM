@@ -120,7 +120,7 @@ switch ($method) {
         $types = "";
 
         // Lista branca de campos que o gestor pode alterar. Evita updates acidentais em colunas sensíveis.
-        $allowedFields = ['id_tecnico', 'prioridade', 'data_prevista', 'status', 'descricao_problema', 'id_tipo_servico'];
+        $allowedFields = ['id_tecnico', 'prioridade', 'data_previsao_conclusao', 'status', 'descricao_problema', 'id_tipo_servico'];
         foreach ($allowedFields as $field) {
             if (isset($data->$field)) {
                 $fields[] = "$field = ?";
