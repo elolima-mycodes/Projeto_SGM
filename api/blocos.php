@@ -15,14 +15,14 @@ switch ($method) {
         $blocos = [];
         if (isset($_GET['id'])) {
             $id = (int) $_GET['id'];
-            $sql = "SELECT b.id_bloco, b.nome, 
-                GROUP_CONCAT(a.nome SEPARATOR ', ') as nomes_ambientes
+            $sql = "SELECT b.id_bloco, b.nome, b.descricao,
+                GROUP_CONCAT(a.nome SEPARATOR ', ') as nomes_ambientes 
                 FROM blocos b 
                 LEFT JOIN ambientes a ON a.id_bloco = b.id_bloco
                 WHERE b.id_bloco = $id
                 GROUP BY b.id_bloco";
         } else {
-            $sql = "SELECT b.id_bloco, b.nome, 
+            $sql = "SELECT b.id_bloco, b.nome, b.descricao,
                 GROUP_CONCAT(a.nome SEPARATOR ', ') as nomes_ambientes
                 FROM blocos b 
                 LEFT JOIN ambientes a ON a.id_bloco = b.id_bloco

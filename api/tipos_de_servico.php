@@ -12,7 +12,7 @@ $method = $_SERVER['REQUEST_METHOD'];
 
 switch ($method) {
     case 'GET':
-        $sql = "SELECT t.id_tipo, t.nome FROM tipos_servico t ORDER BY t.nome ASC";
+        $sql = "SELECT t.id_tipo, t.nome, t.descricao FROM tipos_servico t ORDER BY t.nome ASC";
 
         $result = $conn->query($sql);
         $servicos = [];
